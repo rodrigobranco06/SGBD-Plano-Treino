@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Planos de Treino</title>
+    <link rel="stylesheet" href="css/login.css">
+  </head>
+  <body>
+    <div class="auth-container">
+    <div class="auth-header">
+      <h1>Entrar</h1>
+      <p>Acede ao teu plano de treino</p>
+    </div>
+
+    <form id="formLogin">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="o.teu.email@example.com"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <p class="helper-text">Introduz as tuas credenciais para continuar.</p>
+
+      <button type="submit" class="auth-button">Entrar</button>
+
+      <p id="mensagem" class="mensagem-erro"></p>
+    </form>
+
+    <div class="auth-footer">
+      <span>Ainda não tens conta?</span>
+      <a href="/registar.html">Regista-te aqui</a>
+    </div>
+  </div>
+
+    <script>
+        // Se já estiver logado, vai direto para o dashboard
+        const userExistente = localStorage.getItem("user");
+        if (userExistente) {
+            window.location.href = "/dashboard.html";
+        }
+
+        const form = document.getElementById("formLogin");
+        const mensagemEl = document.getElementById("mensagem");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            mensagemEl.textContent = "";
+
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+
+            try {
+            const resposta = await fetch("/login", {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await resposta.json();
+
+            if (resposta.ok) {
+                // Guarda o utilizador (id, nome, role, etc.)
+                localStorage.setItem("user", JSON.stringify(data.utilizador));
+
+                // Redireciona para o dashboard
+                window.location.href = "/dashboard.html";
+            } else {
+                mensagemEl.textContent =
+                data.mensagem || "Email ou password incorretos.";
+            }
+            } catch (err) {
+            console.error(err);
+            mensagemEl.textContent = "Erro ao comunicar com o servidor.";
+            }
+        });
+    </script>
+
+  </body>
+</html>

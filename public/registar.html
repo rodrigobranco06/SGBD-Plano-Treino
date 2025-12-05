@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registo - Planos de Treino</title>
+    <link rel="stylesheet" href="css/registar.css">
+  </head>
+  <body>
+    <div class="register-container">
+    <div class="register-header">
+      <h1>Criar conta</h1>
+      <p>Regista-te para gerir os teus planos de treino.</p>
+    </div>
+
+    <form id="formRegisto">
+      <div class="form-group">
+        <label for="nome">Nome</label>
+        <input
+          type="text"
+          id="nome"
+          placeholder="O teu nome"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="o.teu.email@example.com"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirmar Password</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          placeholder="Repete a password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="register-button">Registar</button>
+
+      <p id="mensagem" class="mensagem-erro"></p>
+    </form>
+
+    <div class="register-footer">
+      <span>Já tens conta?</span>
+      <a href="/login.html">Faz login aqui</a>
+    </div>
+  </div>
+
+    <script>
+      const form = document.getElementById("formRegisto");
+      const mensagemEl = document.getElementById("mensagem");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        mensagemEl.textContent = "";
+
+        const nome = document.getElementById("nome").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword =
+          document.getElementById("confirmPassword").value;
+
+        if (password !== confirmPassword) {
+          mensagemEl.textContent = "As passwords não coincidem.";
+          return;
+        }
+
+        try {
+          const resposta = await fetch("/registar", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ nome, email, password }),
+          });
+
+          const data = await resposta.json();
+
+          if (resposta.ok) {
+            // Registo OK -> ir para o login
+            alert("Registo efetuado com sucesso! Já podes fazer login.");
+            window.location.href = "/login.html";
+          } else {
+            mensagemEl.textContent = data.mensagem || "Erro no registo.";
+          }
+        } catch (err) {
+          console.error(err);
+          mensagemEl.textContent = "Erro ao comunicar com o servidor.";
+        }
+      });
+    </script>
+  </body>
+</html>

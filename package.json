@@ -1,0 +1,26 @@
+{
+  "name": "sgbd-plano-treino",
+  "version": "1.0.0",
+  "description": "SGBD Plano Treino",
+  "homepage": "https://github.com/rodrigobranco06/SGBD-Plano-Treino#readme",
+  "bugs": {
+    "url": "https://github.com/rodrigobranco06/SGBD-Plano-Treino/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rodrigobranco06/SGBD-Plano-Treino.git"
+  },
+  "license": "ISC",
+  "author": "RB & BM",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
+    "mysql": "^2.18.1",
+    "path": "^0.12.7"
+  }
+}
