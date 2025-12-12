@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adicionar Exercícios</title>
+    <link rel="stylesheet" href="css/adicionarExercicios.css" />
+  </head>
+
+  <body>
+    <div class="page">
+      <div class="header">
+        <div class="title-block">
+          <h1>Adicionar Exercícios</h1>
+          <p>Cria e gere os exercícios associados aos grupos musculares.</p>
+        </div>
+
+        <div class="nav">
+          <a href="/grupos.html">Gerir grupos</a>
+          <a href="/exercicios.html">Pesquisar</a>
+          <a href="/dashboard.html">&larr; Dashboard</a>
+        </div>
+      </div>
+
+      <div class="userbar">
+        <span id="infoUser"></span>
+      </div>
+
+      <div class="form-card">
+        <form id="formExercicio">
+          <div class="form-grid">
+            <div class="field">
+              <label for="nomeExercicio">Nome do exercício</label>
+              <input
+                type="text"
+                id="nomeExercicio"
+                placeholder="Ex.: Supino reto com barra"
+                required
+              />
+            </div>
+
+            <div class="field">
+              <label for="grupoMuscular">Grupo muscular</label>
+              <select id="grupoMuscular" required>
+                <option value="">A carregar grupos...</option>
+              </select>
+            </div>
+
+            <div class="field full">
+              <label for="descricaoExercicio">Descrição (opcional)</label>
+              <textarea
+                id="descricaoExercicio"
+                rows="3"
+                placeholder="Notas sobre a execução, dicas técnicas, etc."
+              ></textarea>
+            </div>
+
+            <div class="field full">
+              <label for="videoCaminho">Vídeo do exercício (opcional)</label>
+              <input type="file" id="videoCaminho" accept="video/*" />
+
+              <div class="video-preview" id="videoPreview" style="display: none">
+                <video id="previewPlayer" controls preload="metadata"></video>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="reset" class="btn-secondary">Limpar</button>
+            <button type="submit" class="btn-primary">Guardar exercício</button>
+          </div>
+
+          <p id="mensagem" class="msg"></p>
+        </form>
+      </div>
+
+      <!-- LISTA -->
+      <div style="margin-top: 1.6rem">
+        <h2 style="font-size: 1.15rem; color: #f9fafb; margin-bottom: 0.75rem">
+          Exercícios ativos
+        </h2>
+
+        <ul id="listaExercicios" style="list-style: none; padding: 0; margin: 0">
+          <li style="color: #9ca3af; font-size: 0.95rem">
+            A carregar exercícios...
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- MODAL EDITAR EXERCÍCIO -->
+    <div id="modalEditar" class="modal hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>Editar exercício</h2>
+          <button id="btnFecharModal" class="modal-close">✕</button>
+        </div>
+
+        <form id="formEditarExercicio">
+          <input type="hidden" id="editId" />
+
+          <div class="field">
+            <label for="editNome">Nome</label>
+            <input type="text" id="editNome" required />
+          </div>
+
+          <div class="field" style="margin-top: 0.9rem">
+            <label for="editGrupo">Grupo muscular</label>
+            <select id="editGrupo" required></select>
+          </div>
+
+          <div class="field" style="margin-top: 0.9rem">
+            <label for="editDescricao">Descrição (opcional)</label>
+            <textarea id="editDescricao" rows="3"></textarea>
+          </div>
+
+          <div class="field" style="margin-top: 0.9rem">
+            <label for="editVideo">Trocar vídeo (opcional)</label>
+            <input type="file" id="editVideo" accept="video/*" />
+          </div>
+
+          <div style="margin-top: 0.8rem; display:flex; gap:0.6rem; align-items:center;">
+            <input type="checkbox" id="removerVideo" />
+            <label for="removerVideo" style="color:#cbd5e1;font-size:0.9rem;">
+              Remover vídeo atual
+            </label>
+          </div>
+
+          <div id="editVideoPreview" class="video-preview" style="display:none; margin-top:0.8rem;">
+            <video id="editPreviewPlayer" controls preload="metadata"></video>
+          </div>
+
+          <div class="actions" style="margin-top: 1.2rem">
+            <button type="button" id="btnCancelarEditar" class="btn-secondary">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-primary">Guardar</button>
+          </div>
+
+          <p id="msgEditar" class="msg"></p>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) window.location.href = "/login.html";
+
+      const infoUserEl = document.getElementById("infoUser");
+      const formExercicio = document.getElementById("formExercicio");
+      const inputNome = document.getElementById("nomeExercicio");
+      const selectGrupo = document.getElementById("grupoMuscular");
+      const textareaDescricao = document.getElementById("descricaoExercicio");
+      const inputVideo = document.getElementById("videoCaminho");
+      const mensagemEl = document.getElementById("mensagem");
+      const listaExerciciosEl = document.getElementById("listaExercicios");
+
+      const videoPreviewWrap = document.getElementById("videoPreview");
+      const previewPlayer = document.getElementById("previewPlayer");
+
+      const roleTratado = user.role === "admin" ? "Admin" : "Atleta";
+      infoUserEl.textContent = `Autenticado como: ${user.nome} — ${roleTratado}`;
+
+      function setMensagem(texto, tipo) {
+        mensagemEl.textContent = texto || "";
+        mensagemEl.className = "msg";
+        if (tipo === "erro") mensagemEl.classList.add("error");
+        if (tipo === "sucesso") mensagemEl.classList.add("success");
+      }
+
+      async function carregarGrupos() {
+        try {
+          const resposta = await fetch("/api/grupos-musculares");
+          const grupos = await resposta.json();
+
+          selectGrupo.innerHTML = "";
+
+          if (!Array.isArray(grupos) || grupos.length === 0) {
+            selectGrupo.innerHTML =
+              '<option value="">Cria primeiro grupos musculares</option>';
+            selectGrupo.disabled = true;
+            formExercicio.querySelector("button[type='submit']").disabled = true;
+            setMensagem(
+              "Não existem grupos musculares. Cria alguns antes de adicionar exercícios.",
+              "erro"
+            );
+            return;
+          }
+
+          selectGrupo.disabled = false;
+          formExercicio.querySelector("button[type='submit']").disabled = false;
+
+          selectGrupo.innerHTML =
+            '<option value="">Seleciona um grupo...</option>';
+          grupos.forEach((g) => {
+            const opt = document.createElement("option");
+            opt.value = g.id;
+            opt.textContent = g.nome;
+            selectGrupo.appendChild(opt);
+          });
+        } catch (err) {
+          console.error(err);
+          selectGrupo.innerHTML =
+            '<option value="">Erro ao carregar grupos</option>';
+          selectGrupo.disabled = true;
+          formExercicio.querySelector("button[type='submit']").disabled = true;
+          setMensagem("Erro ao carregar grupos musculares.", "erro");
+        }
+      }
+
+      function renderListaAdmin(exercicios) {
+        listaExerciciosEl.innerHTML = "";
+
+        if (!Array.isArray(exercicios) || exercicios.length === 0) {
+          listaExerciciosEl.innerHTML =
+            '<li style="color:#9ca3af;font-size:0.95rem;padding:0.5rem 0;">Ainda não existem exercícios.</li>';
+          return;
+        }
+
+        exercicios.forEach((e) => {
+          const li = document.createElement("li");
+          li.style.cssText =
+            "display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;padding:0.9rem 0;border-bottom:1px solid rgba(148,163,184,0.18);";
+
+          const left = document.createElement("div");
+          left.style.cssText = "flex:1;min-width:0;";
+
+          const title = document.createElement("div");
+          title.style.cssText =
+            "font-weight:800;color:#f9fafb;font-size:1rem;margin-bottom:0.2rem;";
+          title.textContent = e.nome;
+
+          const meta = document.createElement("div");
+          meta.style.cssText =
+            "color:#9ca3af;font-size:0.9rem;margin-bottom:0.35rem;";
+          meta.textContent = `Grupo: ${e.grupo_nome}`;
+
+          left.appendChild(title);
+          left.appendChild(meta);
+
+          if (e.descricao) {
+            const desc = document.createElement("div");
+            desc.style.cssText =
+              "color:#cbd5e1;font-size:0.93rem;line-height:1.35;";
+            desc.textContent = e.descricao;
+            left.appendChild(desc);
+          }
+
+          if (e.video_caminho) {
+            const wrap = document.createElement("div");
+            wrap.style.cssText = "margin-top:0.6rem;max-width:520px;";
+            const v = document.createElement("video");
+            v.controls = true;
+            v.preload = "metadata";
+            v.src = e.video_caminho;
+            v.style.cssText =
+              "width:100%;border-radius:1rem;border:1px solid rgba(75,85,99,0.85);background:#020617;max-height:240px;";
+            wrap.appendChild(v);
+            left.appendChild(wrap);
+          }
+
+          const right = document.createElement("div");
+          right.style.cssText = "display:flex;align-items:center;gap:0.6rem;";
+
+          const btnEditar = document.createElement("button");
+          btnEditar.textContent = "Editar";
+          btnEditar.className = "btn-secondary";
+          btnEditar.addEventListener("click", () => abrirModalEditar(e.id));
+
+          const btnDesativar = document.createElement("button");
+          btnDesativar.textContent = "Desativar";
+          btnDesativar.className = "btn-secondary";
+          btnDesativar.style.borderColor = "rgba(239,68,68,0.55)";
+          btnDesativar.style.color = "#fecaca";
+
+          btnDesativar.addEventListener("click", async () => {
+            const confirma = confirm(
+              `Tens a certeza que queres desativar o exercício "${e.nome}"?`
+            );
+            if (!confirma) return;
+
+            try {
+              const resp = await fetch(`/api/exercicios/${e.id}`, {
+                method: "DELETE",
+              });
+              const data = await resp.json();
+
+              if (resp.ok) {
+                setMensagem(
+                  data.mensagem || "Exercício desativado com sucesso.",
+                  "sucesso"
+                );
+                carregarExercicios();
+              } else {
+                setMensagem(
+                  data.mensagem || "Não foi possível desativar o exercício.",
+                  "erro"
+                );
+              }
+            } catch (err) {
+              console.error(err);
+              setMensagem("Erro ao comunicar com o servidor.", "erro");
+            }
+          });
+
+          right.appendChild(btnEditar);
+          right.appendChild(btnDesativar);
+
+          li.appendChild(left);
+          li.appendChild(right);
+          listaExerciciosEl.appendChild(li);
+        });
+      }
+
+      async function carregarExercicios() {
+        try {
+          const resposta = await fetch("/api/exercicios");
+          const exercicios = await resposta.json();
+          renderListaAdmin(exercicios);
+        } catch (err) {
+          console.error(err);
+          listaExerciciosEl.innerHTML =
+            '<li style="color:#9ca3af;font-size:0.95rem;padding:0.5rem 0;">Erro ao carregar exercícios.</li>';
+        }
+      }
+
+      inputVideo.addEventListener("change", () => {
+        const file = inputVideo.files[0];
+        if (!file) {
+          videoPreviewWrap.style.display = "none";
+          previewPlayer.removeAttribute("src");
+          previewPlayer.load();
+          return;
+        }
+        const url = URL.createObjectURL(file);
+        previewPlayer.src = url;
+        videoPreviewWrap.style.display = "block";
+      });
+
+      formExercicio.addEventListener("reset", () => {
+        setMensagem("", "");
+        videoPreviewWrap.style.display = "none";
+        previewPlayer.removeAttribute("src");
+        previewPlayer.load();
+      });
+
+      formExercicio.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        setMensagem("", "");
+
+        const nome = inputNome.value.trim();
+        const grupoId = selectGrupo.value;
+        const descricao = textareaDescricao.value;
+        const videoFile = inputVideo.files[0];
+
+        if (!nome) return setMensagem("Escreve um nome para o exercício.", "erro");
+        if (!grupoId) return setMensagem("Seleciona um grupo muscular.", "erro");
+
+        const formData = new FormData();
+        formData.append("nome", nome);
+        formData.append("grupo_muscular_id", grupoId);
+        formData.append("descricao", descricao);
+
+        if (videoFile) formData.append("video", videoFile);
+
+        try {
+          const resposta = await fetch("/api/exercicios", {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await resposta.json();
+
+          if (resposta.ok) {
+            setMensagem(data.mensagem || "Criado com sucesso.", "sucesso");
+            formExercicio.reset();
+            carregarExercicios();
+          } else {
+            setMensagem(data.mensagem || "Erro ao criar.", "erro");
+          }
+        } catch (err) {
+          console.error(err);
+          setMensagem("Erro ao comunicar com o servidor.", "erro");
+        }
+      });
+
+      // --------------------
+      // MODAL EDITAR
+      // --------------------
+      const modalEditar = document.getElementById("modalEditar");
+      const btnFecharModal = document.getElementById("btnFecharModal");
+      const btnCancelarEditar = document.getElementById("btnCancelarEditar");
+      const formEditarEx = document.getElementById("formEditarExercicio");
+      const msgEditarEl = document.getElementById("msgEditar");
+
+      const editIdEl = document.getElementById("editId");
+      const editNomeEl = document.getElementById("editNome");
+      const editGrupoEl = document.getElementById("editGrupo");
+      const editDescEl = document.getElementById("editDescricao");
+      const editVideoEl = document.getElementById("editVideo");
+      const removerVideoEl = document.getElementById("removerVideo");
+
+      const editVideoPreviewWrap = document.getElementById("editVideoPreview");
+      const editPreviewPlayer = document.getElementById("editPreviewPlayer");
+
+      function setMsgEditar(texto, tipo) {
+        msgEditarEl.textContent = texto || "";
+        msgEditarEl.className = "msg";
+        if (tipo === "erro") msgEditarEl.classList.add("error");
+        if (tipo === "sucesso") msgEditarEl.classList.add("success");
+      }
+
+      function abrirModal() {
+        modalEditar.classList.remove("hidden");
+        document.body.style.overflow = "hidden";     // ✅ bloqueia scroll do body
+        modalEditar.scrollTop = 0;                  // ✅ garante topo no zoom
+      }
+      function fecharModal() {
+        modalEditar.classList.add("hidden");
+        document.body.style.overflow = "";          // ✅ repõe scroll
+      }
+
+      modalEditar.addEventListener("click", (e) => {
+        if (e.target === modalEditar) fecharModal();
+      });
+      btnFecharModal.addEventListener("click", fecharModal);
+      btnCancelarEditar.addEventListener("click", fecharModal);
+
+      async function carregarGruposNoModal(grupoSelecionadoId) {
+        const resp = await fetch("/api/grupos-musculares");
+        const grupos = await resp.json();
+
+        editGrupoEl.innerHTML = "";
+        grupos.forEach((g) => {
+          const opt = document.createElement("option");
+          opt.value = g.id;
+          opt.textContent = g.nome;
+          if (String(g.id) === String(grupoSelecionadoId)) opt.selected = true;
+          editGrupoEl.appendChild(opt);
+        });
+      }
+
+      async function abrirModalEditar(exId) {
+        try {
+          setMsgEditar("", "");
+          removerVideoEl.checked = false;
+          editVideoEl.value = "";
+
+          editVideoPreviewWrap.style.display = "none";
+          editPreviewPlayer.removeAttribute("src");
+          editPreviewPlayer.load();
+
+          const resp = await fetch(`/api/exercicios/${exId}`);
+          const ex = await resp.json();
+
+          if (!resp.ok) {
+            alert(ex.mensagem || "Erro ao obter exercício.");
+            return;
+          }
+
+          editIdEl.value = ex.id;
+          editNomeEl.value = ex.nome || "";
+          editDescEl.value = ex.descricao || "";
+
+          await carregarGruposNoModal(ex.grupo_muscular_id);
+
+          if (ex.video_caminho) {
+            editPreviewPlayer.src = ex.video_caminho;
+            editVideoPreviewWrap.style.display = "block";
+          }
+
+          abrirModal();
+        } catch (err) {
+          console.error(err);
+          alert("Erro ao abrir edição.");
+        }
+      }
+
+      editVideoEl.addEventListener("change", () => {
+        const file = editVideoEl.files[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        editPreviewPlayer.src = url;
+        editVideoPreviewWrap.style.display = "block";
+      });
+
+      formEditarEx.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        setMsgEditar("", "");
+
+        const id = editIdEl.value;
+        const nome = editNomeEl.value.trim();
+        const grupoId = editGrupoEl.value;
+        const descricao = editDescEl.value;
+
+        if (!nome) return setMsgEditar("O nome é obrigatório.", "erro");
+
+        const formData = new FormData();
+        formData.append("nome", nome);
+        formData.append("grupo_muscular_id", grupoId);
+        formData.append("descricao", descricao);
+
+        if (removerVideoEl.checked) formData.append("remover_video", "1");
+
+        const novoVideo = editVideoEl.files[0];
+        if (novoVideo) formData.append("video", novoVideo);
+
+        try {
+          const resp = await fetch(`/api/exercicios/${id}`, {
+            method: "PUT",
+            body: formData,
+          });
+
+          const data = await resp.json();
+
+          if (resp.ok) {
+            setMsgEditar(data.mensagem || "Atualizado.", "sucesso");
+            await carregarExercicios();
+            setTimeout(fecharModal, 450);
+          } else {
+            setMsgEditar(data.mensagem || "Erro ao atualizar.", "erro");
+          }
+        } catch (err) {
+          console.error(err);
+          setMsgEditar("Erro ao comunicar com o servidor.", "erro");
+        }
+      });
+
+      // Inicializar
+      carregarGrupos();
+      carregarExercicios();
+    </script>
+  </body>
+</html>

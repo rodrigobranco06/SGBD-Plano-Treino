@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Planos de Treino</title>
+  <link rel="stylesheet" href="css/planos.css" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="panel-container">
+      <div class="panel-header">
+        <h1>Planos de Treino</h1>
+        <p>Cria e gere os teus planos.</p>
+      </div>
+
+      <div class="panel-topbar">
+        <span id="infoUser"></span>
+        <div class="top-links">
+          <a href="/exercicios.html" class="link-ghost">Exercícios</a>
+          <a href="/dashboard.html" class="link-ghost">&larr; Dashboard</a>
+        </div>
+      </div>
+
+      <form id="formPlano" class="form-box">
+        <div class="form-group">
+          <label for="nomePlano">Nome do plano</label>
+          <input id="nomePlano" type="text" placeholder="Ex.: Hipertrofia 4x/semana" required />
+        </div>
+
+        <div class="form-group">
+          <label for="objetivoPlano">Objetivo (opcional)</label>
+          <input id="objetivoPlano" type="text" placeholder="Ex.: Ganho de massa muscular" />
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="dataInicio">Data início (opcional)</label>
+            <input id="dataInicio" type="date" />
+          </div>
+          <div class="form-group">
+            <label for="dataFim">Data fim (opcional)</label>
+            <input id="dataFim" type="date" />
+          </div>
+        </div>
+
+        <button class="primary-button" type="submit">Criar plano</button>
+        <p id="mensagem" class="mensagem"></p>
+      </form>
+
+      <div class="list-section">
+        <h2>Os teus planos</h2>
+        <ul id="listaPlanos" class="list">
+          <li class="list-empty">A carregar...</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR PLANO -->
+    <div id="modalEditar" class="modal hidden">
+    <div class="modal-card">
+        <div class="modal-header">
+        <h2>Editar plano</h2>
+        <button id="btnFecharModal" class="modal-close">✕</button>
+        </div>
+
+        <form id="formEditarPlano">
+        <input type="hidden" id="editPlanoId" />
+
+        <div class="form-group">
+            <label for="editNome">Nome</label>
+            <input id="editNome" type="text" required />
+        </div>
+
+        <div class="form-group">
+            <label for="editObjetivo">Objetivo (opcional)</label>
+            <input id="editObjetivo" type="text" />
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+            <label for="editDataInicio">Data início</label>
+            <input id="editDataInicio" type="date" />
+            </div>
+            <div class="form-group">
+            <label for="editDataFim">Data fim</label>
+            <input id="editDataFim" type="date" />
+            </div>
+        </div>
+
+        <button type="submit" class="primary-button">Guardar alterações</button>
+        <p id="mensagemEditar" class="mensagem"></p>
+        </form>
+    </div>
+    </div>
+
+
+<script>
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user) window.location.href = "/login.html";
+
+  const roleTratado = user.role === "admin" ? "Admin" : "Atleta";
+  document.getElementById("infoUser").textContent = `Autenticado como: ${user.nome} — ${roleTratado}`;
+
+  const formPlano = document.getElementById("formPlano");
+  const mensagemEl = document.getElementById("mensagem");
+  const listaPlanosEl = document.getElementById("listaPlanos");
+
+  function setMensagem(texto, tipo) {
+    mensagemEl.textContent = texto || "";
+    mensagemEl.className = "mensagem";
+    if (tipo === "erro") mensagemEl.classList.add("mensagem-erro");
+    if (tipo === "sucesso") mensagemEl.classList.add("mensagem-sucesso");
+  }
+
+  const modal = document.getElementById("modalEditar");
+const btnFecharModal = document.getElementById("btnFecharModal");
+const formEditar = document.getElementById("formEditarPlano");
+const msgEditar = document.getElementById("mensagemEditar");
+
+function setMsgEditar(texto, tipo) {
+  msgEditar.textContent = texto || "";
+  msgEditar.className = "mensagem";
+  if (tipo === "erro") msgEditar.classList.add("mensagem-erro");
+  if (tipo === "sucesso") msgEditar.classList.add("mensagem-sucesso");
+}
+
+function abrirModalEditar(plano) {
+  document.getElementById("editPlanoId").value = plano.id;
+  document.getElementById("editNome").value = plano.nome || "";
+  document.getElementById("editObjetivo").value = plano.objetivo || "";
+  document.getElementById("editDataInicio").value = plano.data_inicio ? plano.data_inicio.slice(0, 10) : "";
+  document.getElementById("editDataFim").value = plano.data_fim ? plano.data_fim.slice(0, 10) : "";
+
+  setMsgEditar("", "");
+  modal.classList.remove("hidden");
+}
+
+function fecharModal() {
+  modal.classList.add("hidden");
+}
+
+btnFecharModal.addEventListener("click", fecharModal);
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) fecharModal(); // clicar fora fecha
+});
+
+formEditar.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  setMsgEditar("", "");
+
+  const planoId = document.getElementById("editPlanoId").value;
+  const nome = document.getElementById("editNome").value.trim();
+  const objetivo = document.getElementById("editObjetivo").value.trim();
+  const data_inicio = document.getElementById("editDataInicio").value;
+  const data_fim = document.getElementById("editDataFim").value;
+
+  if (!nome) {
+    setMsgEditar("O nome é obrigatório.", "erro");
+    return;
+  }
+
+  try {
+    const resp = await fetch(`/api/planos/${planoId}/${user.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome, objetivo, data_inicio, data_fim }),
+    });
+
+    const data = await resp.json();
+
+    if (resp.ok) {
+      setMsgEditar(data.mensagem || "Atualizado.", "sucesso");
+      await carregarPlanos();
+      setTimeout(fecharModal, 400);
+    } else {
+      setMsgEditar(data.mensagem || "Erro ao atualizar.", "erro");
+    }
+  } catch (err) {
+    console.error(err);
+    setMsgEditar("Erro ao comunicar com o servidor.", "erro");
+  }
+});
+
+
+  async function carregarPlanos() {
+    try {
+      const resp = await fetch(`/api/planos/${user.id}`);
+      const planos = await resp.json();
+
+      listaPlanosEl.innerHTML = "";
+      if (!Array.isArray(planos) || planos.length === 0) {
+        listaPlanosEl.innerHTML = `<li class="list-empty">Ainda não tens planos.</li>`;
+        return;
+      }
+
+      planos.forEach(p => {
+        const li = document.createElement("li");
+        li.className = "list-item";
+
+        const left = document.createElement("div");
+        left.className = "item-left";
+
+        const h = document.createElement("h3");
+        h.textContent = p.nome;
+
+        const small = document.createElement("p");
+        small.className = "muted";
+        small.textContent = p.objetivo ? `Objetivo: ${p.objetivo}` : "Sem objetivo definido";
+
+        left.appendChild(h);
+        left.appendChild(small);
+
+        const actions = document.createElement("div");
+        actions.className = "item-actions";
+
+        const btnAbrir = document.createElement("a");
+        btnAbrir.className = "secondary-button";
+        btnAbrir.textContent = "Abrir";
+        btnAbrir.href = `/plano_detalhe.html?planoId=${p.id}`;
+
+
+        const btnEditar = document.createElement("button");
+        btnEditar.className = "secondary-button";
+        btnEditar.textContent = "Editar";
+        btnEditar.onclick = () => abrirModalEditar(p);
+
+        
+
+        const btnDesativar = document.createElement("button");
+        btnDesativar.className = "danger-button";
+        btnDesativar.textContent = "Desativar";
+        btnDesativar.onclick = async () => {
+          if (!confirm(`Desativar o plano "${p.nome}"?`)) return;
+          const r = await fetch(`/api/planos/${p.id}/${user.id}`, { method: "DELETE" });
+          const data = await r.json();
+          if (r.ok) {
+            setMensagem(data.mensagem, "sucesso");
+            carregarPlanos();
+          } else {
+            setMensagem(data.mensagem || "Erro ao desativar.", "erro");
+          }
+        };
+
+        actions.appendChild(btnAbrir);
+        actions.appendChild(btnEditar);
+        actions.appendChild(btnDesativar);
+
+        li.appendChild(left);
+        li.appendChild(actions);
+        listaPlanosEl.appendChild(li);
+      });
+    } catch (e) {
+      console.error(e);
+      listaPlanosEl.innerHTML = `<li class="list-empty">Erro ao carregar planos.</li>`;
+    }
+  }
+
+  formPlano.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    setMensagem("", "");
+
+    const nome = document.getElementById("nomePlano").value.trim();
+    const objetivo = document.getElementById("objetivoPlano").value.trim();
+    const data_inicio = document.getElementById("dataInicio").value;
+    const data_fim = document.getElementById("dataFim").value;
+
+    try {
+      const resp = await fetch("/api/planos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          utilizador_id: user.id,
+          nome,
+          objetivo,
+          data_inicio,
+          data_fim
+        })
+      });
+
+      const data = await resp.json();
+      if (resp.ok) {
+        setMensagem(data.mensagem, "sucesso");
+        formPlano.reset();
+        carregarPlanos();
+      } else {
+        setMensagem(data.mensagem || "Erro ao criar plano.", "erro");
+      }
+    } catch (err) {
+      console.error(err);
+      setMensagem("Erro ao comunicar com o servidor.", "erro");
+    }
+  });
+
+  carregarPlanos();
+</script>
+</body>
+</html>

@@ -1,303 +1,194 @@
 <!DOCTYPE html>
 <html lang="pt">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Exercícios</title>
-    <link rel="stylesheet" href="css/exercicios.css" />
-  </head>
-  <body>
-    <div class="page-wrapper">
-      <div class="panel-container">
-        <div class="panel-header">
-          <h1>Exercícios</h1>
-          <p>Cria e gere os exercícios associados aos grupos musculares.</p>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exercícios</title>
+  <link rel="stylesheet" href="css/exercicios.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="title-block">
+        <h1>Exercícios</h1>
+        <p>Pesquisa exercícios por grupo muscular e por nome.</p>
+      </div>
 
-        <div class="panel-topbar">
-          <span id="infoUser"></span>
-          <div class="top-links">
-            <a href="/grupos.html" class="link-ghost">Gerir grupos</a>
-            <a href="/dashboard.html" class="link-ghost">&larr; Dashboard</a>
-          </div>
-        </div>
-
-        <form id="formExercicio" class="form-box">
-          <div class="form-group">
-            <label for="nomeExercicio">Nome do exercício</label>
-            <input
-              type="text"
-              id="nomeExercicio"
-              placeholder="Ex.: Supino reto com barra"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="grupoMuscular">Grupo muscular</label>
-            <select id="grupoMuscular" required>
-              <option value="">A carregar grupos...</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="descricaoExercicio">Descrição (opcional)</label>
-            <textarea
-              id="descricaoExercicio"
-              rows="3"
-              placeholder="Notas sobre a execução, dicas técnicas, etc."
-            ></textarea>
-          </div>
-
-        <div class="form-group">
-            <label for="videoCaminho">Vídeo do exercício (opcional)</label>
-            <input type="file" id="videoCaminho" accept="video/*" />
-        </div>
-
-
-          <button type="submit" class="primary-button">Guardar exercício</button>
-          <p id="mensagem" class="mensagem"></p>
-        </form>
-
-        <div class="list-section">
-          <h2>Exercícios ativos</h2>
-          <ul id="listaExercicios" class="exercise-list">
-            <li class="exercise-list-empty">A carregar exercícios...</li>
-          </ul>
-        </div>
+      <div class="nav">
+        <a id="linkAdicionar" href="/adicionarExercicios.html">Adicionar</a>
+        <a href="/dashboard.html">&larr; Dashboard</a>
       </div>
     </div>
 
-    <script>
-      // Verificar login
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (!user) {
-        window.location.href = "/login.html";
-      }
+    <div class="userbar">
+      <span id="infoUser"></span>
+    </div>
 
-      const infoUserEl = document.getElementById("infoUser");
-      const formExercicio = document.getElementById("formExercicio");
-      const inputNome = document.getElementById("nomeExercicio");
-      const selectGrupo = document.getElementById("grupoMuscular");
-      const textareaDescricao = document.getElementById("descricaoExercicio");
-      const inputVideo = document.getElementById("videoCaminho");
-      const mensagemEl = document.getElementById("mensagem");
-      const listaExerciciosEl = document.getElementById("listaExercicios");
+    <div class="filters">
+      <div class="filters-grid">
+        <div class="field">
+          <label for="filtroGrupo">Grupo muscular</label>
+          <select id="filtroGrupo">
+            <option value="">Todos</option>
+          </select>
+        </div>
 
-      const roleTratado = user.role === "admin" ? "Admin" : "Atleta";
-      infoUserEl.textContent = `Autenticado como: ${user.nome} — ${roleTratado}`;
+        <div class="field">
+          <label for="filtroNome">Nome do exercício</label>
+          <input id="filtroNome" type="text" placeholder="Ex.: supino, agachamento..." />
+        </div>
 
-      function setMensagem(texto, tipo) {
-        mensagemEl.textContent = texto || "";
-        mensagemEl.className = "mensagem";
-        if (tipo === "erro") mensagemEl.classList.add("mensagem-erro");
-        if (tipo === "sucesso") mensagemEl.classList.add("mensagem-sucesso");
-      }
+        <div class="actions">
+          <button id="btnPesquisar" class="btn-primary" type="button">Pesquisar</button>
+          <button id="btnLimpar" class="btn-secondary" type="button">Limpar</button>
+        </div>
+      </div>
 
-      function isVideoUrl(url) {
-        if (!url) return true; // opcional
-        const lower = url.toLowerCase();
-        const extensoes = [".mp4", ".webm", ".ogg", ".mov", ".avi", ".mkv"];
-        return extensoes.some((ext) => lower.endsWith(ext));
-      }
+      <p id="mensagem" class="msg"></p>
+    </div>
 
-      async function carregarGrupos() {
-        try {
-          const resposta = await fetch("/api/grupos-musculares");
-          const grupos = await resposta.json();
+    <div class="results-head">
+      <h2>Resultados</h2>
+      <div id="contador" class="results-count"></div>
+    </div>
 
-          selectGrupo.innerHTML = "";
+    <ul id="listaExercicios" class="grid">
+      <li class="empty">A carregar...</li>
+    </ul>
+  </div>
 
-          if (!Array.isArray(grupos) || grupos.length === 0) {
-            selectGrupo.innerHTML =
-              '<option value="">Cria primeiro grupos musculares</option>';
-            selectGrupo.disabled = true;
-            formExercicio.querySelector("button[type='submit']").disabled = true;
-            setMensagem(
-              "Não existem grupos musculares. Cria alguns antes de adicionar exercícios.",
-              "erro"
-            );
-            return;
-          }
+<script>
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user) window.location.href = "/login.html";
 
-          selectGrupo.disabled = false;
-          formExercicio.querySelector("button[type='submit']").disabled = false;
+  const roleTratado = user.role === "admin" ? "Admin" : "Atleta";
+  document.getElementById("infoUser").textContent =
+    `Autenticado como: ${user.nome} — ${roleTratado}`;
 
-          selectGrupo.innerHTML =
-            '<option value="">Seleciona um grupo...</option>';
-          grupos.forEach((g) => {
-            const opt = document.createElement("option");
-            opt.value = g.id;
-            opt.textContent = g.nome;
-            selectGrupo.appendChild(opt);
-          });
-        } catch (err) {
-          console.error(err);
-          selectGrupo.innerHTML =
-            '<option value="">Erro ao carregar grupos</option>';
-          selectGrupo.disabled = true;
-          formExercicio.querySelector("button[type='submit']").disabled = true;
-          setMensagem("Erro ao carregar grupos musculares.", "erro");
-        }
-      }
+  const linkAdicionar = document.getElementById("linkAdicionar");
+  if (user.role !== "admin") linkAdicionar.style.display = "none";
 
-      async function carregarExercicios() {
-        try {
-          const resposta = await fetch("/api/exercicios");
-          const exercicios = await resposta.json();
+  const filtroGrupo = document.getElementById("filtroGrupo");
+  const filtroNome = document.getElementById("filtroNome");
+  const btnPesquisar = document.getElementById("btnPesquisar");
+  const btnLimpar = document.getElementById("btnLimpar");
+  const listaEl = document.getElementById("listaExercicios");
+  const msgEl = document.getElementById("mensagem");
+  const contadorEl = document.getElementById("contador");
 
-          listaExerciciosEl.innerHTML = "";
+  function setMsg(texto, tipo) {
+    msgEl.textContent = texto || "";
+    msgEl.className = "msg";
+    if (tipo === "erro") msgEl.classList.add("error");
+    if (tipo === "sucesso") msgEl.classList.add("success");
+  }
 
-          if (!Array.isArray(exercicios) || exercicios.length === 0) {
-            listaExerciciosEl.innerHTML =
-              '<li class="exercise-list-empty">Ainda não existem exercícios.</li>';
-            return;
-          }
+  async function carregarGrupos() {
+    const resp = await fetch("/api/grupos-musculares");
+    const grupos = await resp.json();
 
-          exercicios.forEach((e) => {
-            const li = document.createElement("li");
-            li.className = "exercise-item";
-
-            const infoDiv = document.createElement("div");
-            infoDiv.className = "exercise-info";
-
-            const titulo = document.createElement("h3");
-            titulo.textContent = e.nome;
-
-            const grupo = document.createElement("p");
-            grupo.className = "exercise-group";
-            grupo.textContent = `Grupo: ${e.grupo_nome}`;
-
-            infoDiv.appendChild(titulo);
-            infoDiv.appendChild(grupo);
-
-            if (e.descricao) {
-              const desc = document.createElement("p");
-              desc.className = "exercise-desc";
-              desc.textContent = e.descricao;
-              infoDiv.appendChild(desc);
-            }
-
-            if (e.video_caminho) {
-              const videoWrapper = document.createElement("div");
-              videoWrapper.className = "exercise-video-wrapper";
-
-              const video = document.createElement("video");
-              video.className = "exercise-video";
-              video.controls = true;
-              video.preload = "metadata";
-              video.src = e.video_caminho;
-
-              videoWrapper.appendChild(video);
-              infoDiv.appendChild(videoWrapper);
-            }
-
-            const actionsDiv = document.createElement("div");
-            actionsDiv.className = "exercise-actions";
-
-            const btnDesativar = document.createElement("button");
-            btnDesativar.className = "danger-button";
-            btnDesativar.textContent = "Desativar";
-            btnDesativar.addEventListener("click", async () => {
-              const confirma = confirm(
-                `Tens a certeza que queres desativar o exercício "${e.nome}"?`
-              );
-              if (!confirma) return;
-
-              try {
-                const resp = await fetch(`/api/exercicios/${e.id}`, {
-                  method: "DELETE",
-                });
-                const data = await resp.json();
-
-                if (resp.ok) {
-                  setMensagem(
-                    data.mensagem || "Exercício desativado com sucesso.",
-                    "sucesso"
-                  );
-                  carregarExercicios();
-                } else {
-                  setMensagem(
-                    data.mensagem ||
-                      "Não foi possível desativar o exercício.",
-                    "erro"
-                  );
-                }
-              } catch (err) {
-                console.error(err);
-                setMensagem("Erro ao comunicar com o servidor.", "erro");
-              }
-            });
-
-            actionsDiv.appendChild(btnDesativar);
-
-            li.appendChild(infoDiv);
-            li.appendChild(actionsDiv);
-
-            listaExerciciosEl.appendChild(li);
-          });
-        } catch (err) {
-          console.error(err);
-          listaExerciciosEl.innerHTML =
-            '<li class="exercise-list-empty">Erro ao carregar exercícios.</li>';
-        }
-      }
-
-    formExercicio.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        setMensagem("", "");
-
-        const nome = inputNome.value.trim();
-        const grupoId = selectGrupo.value;
-        const descricao = textareaDescricao.value;
-
-        const videoFile = inputVideo.files[0];
-
-        if (!nome) {
-            setMensagem("Escreve um nome para o exercício.", "erro");
-            return;
-        }
-
-        if (!grupoId) {
-            setMensagem("Seleciona um grupo muscular.", "erro");
-            return;
-        }
-
-        // Criar FormData
-        const formData = new FormData();
-        formData.append("nome", nome);
-        formData.append("grupo_muscular_id", grupoId);
-        formData.append("descricao", descricao);
-
-        if (videoFile) {
-            formData.append("video", videoFile);
-        }
-
-        try {
-            const resposta = await fetch("/api/exercicios", {
-            method: "POST",
-            body: formData,               // <-- sem headers manualmente
-            });
-
-            const data = await resposta.json();
-
-            if (resposta.ok) {
-            setMensagem(data.mensagem, "sucesso");
-            formExercicio.reset();
-            carregarExercicios();
-            } else {
-            setMensagem(data.mensagem, "erro");
-            }
-        } catch (err) {
-            console.error(err);
-            setMensagem("Erro ao comunicar com o servidor.", "erro");
-        }
+    filtroGrupo.innerHTML = `<option value="">Todos</option>`;
+    (grupos || []).forEach(g => {
+      const opt = document.createElement("option");
+      opt.value = g.id;
+      opt.textContent = g.nome;
+      filtroGrupo.appendChild(opt);
     });
+  }
 
+  function renderLista(exercicios) {
+    listaEl.innerHTML = "";
 
-      // Inicializar página
-      carregarGrupos();
-      carregarExercicios();
-    </script>
-  </body>
+    if (!Array.isArray(exercicios) || exercicios.length === 0) {
+      contadorEl.textContent = "0 resultados";
+      listaEl.innerHTML = `<li class="empty">Sem resultados.</li>`;
+      return;
+    }
+
+    contadorEl.textContent = `${exercicios.length} resultado(s)`;
+
+    exercicios.forEach(e => {
+      const li = document.createElement("li");
+      li.className = "card";
+
+      const top = document.createElement("div");
+      top.className = "card-top";
+
+      const title = document.createElement("div");
+      title.className = "card-title";
+      title.textContent = e.nome;
+
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = e.grupo_nome;
+
+      top.appendChild(title);
+      top.appendChild(badge);
+
+      li.appendChild(top);
+
+      if (e.descricao) {
+        const desc = document.createElement("p");
+        desc.className = "card-desc";
+        desc.textContent = e.descricao;
+        li.appendChild(desc);
+      }
+
+      if (e.video_caminho) {
+        const v = document.createElement("video");
+        v.className = "video";
+        v.controls = true;
+        v.preload = "metadata";
+        v.src = e.video_caminho;
+        li.appendChild(v);
+      }
+
+      listaEl.appendChild(li);
+    });
+  }
+
+  async function pesquisar() {
+    setMsg("", "");
+    listaEl.innerHTML = `<li class="empty">A pesquisar...</li>`;
+    contadorEl.textContent = "";
+
+    const params = new URLSearchParams();
+    if (filtroGrupo.value) params.set("grupoId", filtroGrupo.value);
+    if (filtroNome.value.trim()) params.set("nome", filtroNome.value.trim());
+
+    const resp = await fetch(`/api/exercicios?${params.toString()}`);
+    const exercicios = await resp.json();
+    renderLista(exercicios);
+  }
+
+  btnPesquisar.addEventListener("click", pesquisar);
+
+  btnLimpar.addEventListener("click", () => {
+    filtroGrupo.value = "";
+    filtroNome.value = "";
+    pesquisar();
+  });
+
+  // Enter no input faz pesquisar
+  filtroNome.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      pesquisar();
+    }
+  });
+
+  // opcional: pesquisar automático (fica muito “página de pesquisa”)
+  let timer = null;
+  filtroNome.addEventListener("input", () => {
+    clearTimeout(timer);
+    timer = setTimeout(pesquisar, 350);
+  });
+  filtroGrupo.addEventListener("change", pesquisar);
+
+  (async function init() {
+    await carregarGrupos();
+    await pesquisar();
+  })();
+</script>
+</body>
 </html>

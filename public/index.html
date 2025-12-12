@@ -1,14 +1,125 @@
-<!-- index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGBD - Planos de Treino</title>
-</head>
+    <title>FitPlan PRO | Planos de Treino Adaptativos e Monitorização</title>
+    <meta name="description" content="Transforme o seu treino com planos guiados por dados, monitorização em tempo real e apoio visual. Registe-se hoje!">
+    
+    <link rel="icon" href="favicon.ico" type="image/x-icon"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/index.css"> </head>
 <body>
-    <h1>Bem-vindo ao Sistema de Gestão de Planos de treino</h1>
+    
+    <header class="hero-section">
+        <div class="hero-container">
+            <div class="logo-box">
+                <span class="logo-icon">🏋️‍♀️</span>
+                <span class="logo-text">FitPlan PRO</span>
+            </div>
 
-    <a href="login.html">Faça login</a>
+            <h1 class="hero-title">O Único Plano de Treino que Evolui Consigo.</h1>
+            <p class="hero-subtitle">
+                A nossa IA ajusta os seus treinos a cada sessão, garantindo que o seu progresso nunca estagna. 
+                Pare de adivinhar, comece a crescer.
+            </p>
+            
+            <div class="action-buttons">
+                <a href="registar.html" class="auth-button hero-cta-primary">
+                    Comece o Seu Treino Grátis
+                </a>
+                <a href="login.html" class="auth-button secondary">
+                    Já Sou Cliente
+                </a>
+            </div>
+            
+        </div>
+    </header>
+
+    <section class="testimonial-section">
+        <div class="page-content">
+            <h2>Resultados Comprovados. Opiniões Reais.</h2>
+            <div class="testimonial-card">
+                <p>"Em 3 meses, o FitPlan PRO ajustou o meu foco de força para resistência de forma impecável. Finalmente vejo progresso constante!"</p>
+                <div class="testimonial-author">
+                    <span class="author-name">João F., 32 Anos</span> | <span class="author-title">Gestor de Projeto</span>
+                </div>
+            </div>
+            <div class="trust-icons">
+                 <i class="fas fa-check-circle"></i> Mais de 5.000 utilizadores ativos 
+            </div>
+        </div>
+    </section>
+
+    <section class="value-proposition">
+        <div class="page-content">
+            <h2>Porquê Mudar para o Nosso Sistema?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-robot feature-icon"></i>
+                    <h3>Planos Orientados por IA</h3>
+                    <p>O nosso algoritmo aprende com o seu desempenho, otimizando o volume, a intensidade e o descanso em tempo real.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-area feature-icon"></i>
+                    <h3>Análise Profunda</h3>
+                    <p>Métricas detalhadas, gráficos de progressão de força e mapas de calor muscular para que saiba exatamente onde focar.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-video feature-icon"></i>
+                    <h3>Biblioteca Premium de Vídeos</h3>
+                    <p>Aprenda a forma perfeita com vídeos de alta qualidade e instruções de áudio para cada exercício.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="final-cta">
+        <h2>Pronto para Treinar de Forma Mais Inteligente?</h2>
+        <a href="registar.html" class="auth-button hero-cta-primary final-cta-btn">
+            Registo Rápido e Gratuito
+        </a>
+    </section>
+
+    <footer class="site-footer">
+        <div class="page-content">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <span class="logo-icon">🏋️‍♀️</span> FitPlan PRO
+                </div>
+                <div class="footer-links">
+                    <h4>Empresa</h4>
+                    <a href="#">Sobre Nós</a>
+                    <a href="#">Carreiras</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Suporte</h4>
+                    <a href="#">FAQ</a>
+                    <a href="#">Contactos</a>
+                </div>
+                <div class="footer-social">
+                    <h4>Siga-nos</h4>
+                    <div class="social-links">
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 FitPlan PRO. Todos os direitos reservados. | <a href="#">Termos</a> | <a href="#">Privacidade</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // O JavaScript continua o mesmo, focado apenas no redirecionamento.
+        const userExistente = localStorage.getItem("user");
+        if (userExistente) {
+            window.location.href = "/dashboard.html";
+        }
+    </script>
 </body>
 </html>
