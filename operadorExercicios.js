@@ -16,7 +16,6 @@ class OperadorExercicios {
     });
   }
 
-  // ✅ Agora com filtros opcionais: grupoId e nome
   listarExerciciosAtivos({ grupoId = null, nome = "" } = {}) {
     return new Promise((resolve, reject) => {
       let sql = `

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhe da Sessão - FitPlan PRO</title>
+    
+    <link rel="stylesheet" href="css/verTreino.css">
+</head>
+<body>
+
+    <div class="dashboard-layout">
+
+        <aside class="sidebar">
+            <h2>🏋️ FitPlan PRO</h2>
+            <nav>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="historico.html" class="nav-link">Voltar ao Histórico</a>
+            </nav>
+            <button class="btn-logout" id="logoutButton">Sair</button>
+        </aside>
+
+        <main class="main-content">
+            <header class="welcome-header">
+                <h1 id="tituloResumo">Resumo da Sessão</h1>
+                <p id="subtituloResumo">Carregando dados do treino...</p>
+            </header>
+
+            <div id="containerExercicios">
+                </div>
+        </main>
+
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) window.location.href = "/login.html";
+
+        const params = new URLSearchParams(window.location.search);
+        const registoId = params.get("id");
+
+        async function carregarDetalhes() {
+            const container = document.getElementById("containerExercicios");
+            
+            try {
+                const resp = await fetch(`/api/treino-detalhe/${registoId}`);
+                const dados = await resp.json();
+
+                if (dados.length === 0) {
+                    container.innerHTML = "<p>Nenhum detalhe encontrado para este treino.</p>";
+                    return;
+                }
+
+                document.getElementById("subtituloResumo").textContent = `Consulta as cargas e o esforço registado.`;
+
+                // Agrupar séries por exercício
+                const exerciciosMap = {};
+                dados.forEach(linha => {
+                    if (!exerciciosMap[linha.exercicio_nome]) {
+                        exerciciosMap[linha.exercicio_nome] = {
+                            grupo: linha.grupo_nome,
+                            series: []
+                        };
+                    }
+                    exerciciosMap[linha.exercicio_nome].series.push(linha);
+                });
+
+                container.innerHTML = "";
+
+                for (const nomeEx in exerciciosMap) {
+                    const exData = exerciciosMap[nomeEx];
+                    const bloco = document.createElement("div");
+                    bloco.className = "exercise-block";
+
+                    let linhasHtml = "";
+                    exData.series.forEach(s => {
+                        linhasHtml += `
+                            <tr>
+                                <td>Série ${s.serie}</td>
+                                <td><strong>${s.carga_kg} kg</strong></td>
+                                <td>${s.reps} reps</td>
+                                <td><span class="rpe-value">${s.percepcao_esforco || '-'}</span></td>
+                            </tr>
+                        `;
+                    });
+
+                    bloco.innerHTML = `
+                        <div class="exercise-header">
+                            <h3>${nomeEx}</h3>
+                            <span class="badge-grupo">${exData.grupo}</span>
+                        </div>
+                        <table class="series-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Carga</th>
+                                    <th>Repetições</th>
+                                    <th>Esforço (RPE)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${linhasHtml}
+                            </tbody>
+                        </table>
+                    `;
+                    container.appendChild(bloco);
+                }
+
+            } catch (err) {
+                container.innerHTML = "<p>Erro ao carregar os detalhes do treino.</p>";
+            }
+        }
+
+        document.getElementById('logoutButton').onclick = () => {
+            localStorage.removeItem("user");
+            window.location.href = "/login.html";
+        };
+
+        carregarDetalhes();
+    </script>
+</body>
+</html>

@@ -13,6 +13,9 @@ import OperadorGruposMusculares from "./operadorGruposMusculares.js";
 import OperadorExercicios from "./operadorExercicios.js";
 import OperadorPlanos from "./operadorPlanos.js";
 import OperadorPlanoExercicios from "./operadorPlanoExercicios.js";
+import OperadorRegistos from "./operadorRegistos.js";
+import ligacao from "./BD/configMySql.js";
+import OperadorPerfil from "./operadorPerfil.js";
 
 // MULTER CONFIG
 const storageVideos = multer.diskStorage({
@@ -53,7 +56,8 @@ const OPGRUPOS = new OperadorGruposMusculares();
 const OPEXERCICIOS = new OperadorExercicios();
 const OPPLANOS = new OperadorPlanos();
 const OPPLANOEX = new OperadorPlanoExercicios();
-
+const OPREGISTOS = new OperadorRegistos();
+const OPPERFIL = new OperadorPerfil();
 
 
 // Para ler JSON e dados de forms
@@ -131,8 +135,6 @@ APP.post("/login", async (req, res) => {
         .json({ mensagem: "Email ou password incorretos." });
     }
 
-    // Aqui no futuro podes usar sessões ou JWT.
-    // Por agora, só dizemos que correu bem.
     return res.json({
       mensagem: "Login bem-sucedido.",
       utilizador: {
@@ -203,7 +205,6 @@ APP.delete("/api/grupos-musculares/:id", async (req, res) => {
   } catch (err) {
     console.error("Erro em DELETE /api/grupos-musculares/:id:", err);
 
-    // Se no futuro falhar por causa de FK com exercícios, podes tratar por err.code
     return res.status(500).json({ mensagem: "Não foi possível apagar o grupo." });
   }
 });
@@ -215,7 +216,7 @@ APP.delete("/api/grupos-musculares/:id", async (req, res) => {
 // Criar exercício
 APP.post(
   "/api/exercicios",
-  uploadVideo.single("video"),   // <--- Nome do campo vindo do formulário
+  uploadVideo.single("video"),   
   async (req, res) => {
     try {
       const { nome, grupo_muscular_id, descricao } = req.body;
@@ -226,7 +227,7 @@ APP.post(
           .json({ mensagem: "Nome e grupo muscular são obrigatórios." });
       }
 
-      // Se tiver vídeo, o caminho fica:
+      // upload video
       let video_caminho = null;
       if (req.file) {
         video_caminho = "/uploads/videosExercicios/" + req.file.filename;
@@ -254,7 +255,7 @@ APP.post(
 // Listar exercícios ativos
 APP.get("/api/exercicios", async (req, res) => {
   try {
-    const { grupoId, nome } = req.query; // ex: /api/exercicios?grupoId=2&nome=supino
+    const { grupoId, nome } = req.query;
     const exercicios = await OPEXERCICIOS.listarExerciciosAtivos({
       grupoId: grupoId || null,
       nome: nome || "",
@@ -391,7 +392,7 @@ APP.get("/api/planos/:utilizador_id", async (req, res) => {
   }
 });
 
-// Obter detalhe do plano (verificação de dono)
+// Obter detalhe do plano 
 APP.get("/api/planos/:plano_id/detalhe/:utilizador_id", async (req, res) => {
   try {
     const { plano_id, utilizador_id } = req.params;
@@ -518,3 +519,124 @@ APP.delete("/api/plano-exercicios/:id", async (req, res) => {
   }
 });
 
+
+// ==========================
+// REGISTAR_TREINO - API
+// ==========================
+APP.post("/api/registar-treino", async (req, res) => {
+  try {
+    const { utilizador_id, plano_id, notas, exercicios } = req.body;
+
+    // Criar a sessão
+    const dataHoje = new Date().toISOString().slice(0, 10);
+    const registo_treino_id = await OPREGISTOS.criarSessao(utilizador_id, plano_id, dataHoje, notas);
+
+    // Gravar exercícios e séries
+    for (const ex of exercicios) {
+      for (const s of ex.series) {
+        await OPREGISTOS.gravarSerie(
+          registo_treino_id,
+          ex.exercicio_id,
+          s.numero,
+          s.reps,
+          s.carga,
+          s.percepcao_esforco 
+        );
+      }
+    }
+
+    res.status(201).json({ mensagem: "Treino guardado!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ mensagem: "Erro ao gravar treino." });
+  }
+});
+
+// HISTORICO DE TREINOS
+APP.get("/api/historico/:utilizador_id", async (req, res) => {
+    try {
+        const { utilizador_id } = req.params;
+        const historico = await OPREGISTOS.listarHistorico(utilizador_id);
+        res.json(historico);
+    } catch (err) {
+        res.status(500).json({ mensagem: "Erro ao carregar histórico." });
+    }
+});
+
+
+// Rota para obter estatísticas do utilizador
+APP.get("/api/stats/:utilizador_id", (req, res) => {
+  const { utilizador_id } = req.params;
+
+  const sqlTreinos = "SELECT COUNT(*) as total FROM registos_treino WHERE utilizador_id = ?";
+  const sqlPlanos = "SELECT COUNT(*) as total FROM planos_treino WHERE utilizador_id = ? AND ativo = 1";
+
+  if (!ligacao) {
+    console.error("Erro: Objeto 'ligacao' não foi definido.");
+    return res.status(500).json({ mensagem: "Erro de configuração na base de dados." });
+  }
+
+  ligacao.query(sqlTreinos, [utilizador_id], (errTreinos, resTreinos) => {
+    if (errTreinos) {
+      console.error("Erro SQL Treinos:", errTreinos);
+      return res.status(500).json({ mensagem: "Erro ao contar treinos." });
+    }
+
+    ligacao.query(sqlPlanos, [utilizador_id], (errPlanos, resPlanos) => {
+      if (errPlanos) {
+        console.error("Erro SQL Planos:", errPlanos);
+        return res.status(500).json({ mensagem: "Erro ao contar planos." });
+      }
+
+      res.json({
+        totalTreinos: resTreinos[0]?.total || 0,
+        totalPlanos: resPlanos[0]?.total || 0
+      });
+    });
+  });
+});
+
+// DETALHES DE UM TREINO
+APP.get("/api/treino-detalhe/:registo_id", async (req, res) => {
+    try {
+        const { registo_id } = req.params;
+        const detalhes = await OPREGISTOS.detalharTreino(registo_id);
+        res.json(detalhes);
+    } catch (err) {
+        res.status(500).json({ mensagem: "Erro ao carregar detalhes do treino." });
+    }
+});
+
+// ==========================
+// PERFIL - API
+// ==========================
+
+// Obter Perfil
+APP.get("/api/perfil/:id", async (req, res) => {
+  try {
+    const dados = await OPPERFIL.obterPerfil(req.params.id);
+    if (!dados) return res.status(404).json({ mensagem: "Utilizador não encontrado" });
+    res.json(dados);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ mensagem: "Erro ao carregar perfil" });
+  }
+});
+
+// Guardar Perfil
+APP.put("/api/perfil/:id", async (req, res) => {
+  try {
+    const { data_nascimento, genero, altura_cm, peso_inicial_kg } = req.body;
+    await OPPERFIL.guardarPerfil({
+      utilizador_id: req.params.id,
+      data_nascimento: data_nascimento || null,
+      genero: genero || null,
+      altura_cm: altura_cm || null,
+      peso_inicial_kg: peso_inicial_kg || null
+    });
+    res.json({ mensagem: "Dados guardados com sucesso!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ mensagem: "Erro ao guardar perfil" });
+  }
+});

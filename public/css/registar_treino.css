@@ -1,0 +1,110 @@
+/* registar_treino.css */
+* { box-sizing: border-box; }
+
+body {
+    background: #0b1016;
+    color: white;
+    font-family: sans-serif;
+    margin: 0;
+    padding-bottom: 180px;
+}
+
+.workout-page { max-width: 600px; margin: 0 auto; padding: 1.5rem; }
+
+.workout-header { margin-bottom: 2rem; border-bottom: 1px solid #1f2933; padding-bottom: 1rem; }
+
+.back-link { color: #f97373; text-decoration: none; font-weight: bold; font-size: 0.9rem; }
+
+.exercise-block {
+    background: #0f172a;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #1f2933;
+}
+
+.ex-info h3 { color: #38bdf8; margin: 0 0 0.5rem 0; }
+.ex-info p { color: #9ca3af; font-size: 0.85rem; margin-bottom: 1rem; }
+
+.serie-header {
+    display: grid;
+    grid-template-columns: 40px 1fr 1fr 1fr;
+    gap: 10px;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.serie-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.serie-num { font-weight: bold; color: #22c55e; text-align: center; }
+
+input {
+    background: #020617;
+    border: 1px solid #1f2933;
+    color: white;
+    padding: 0.8rem 0.5rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.workout-footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #0f172a;
+    padding: 1.5rem;
+    border-top: 1px solid #38bdf8;
+    max-width: 600px;
+    margin: 0 auto;
+    z-index: 10;
+}
+
+#notasTreino {
+    width: 100%;
+    background: #020617;
+    color: white;
+    border: 1px solid #1f2933;
+    border-radius: 0.5rem;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    height: 60px;
+    resize: none;
+}
+
+.btn-finish {
+    width: 100%;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border: none;
+    border-radius: 1rem;
+    color: #022c22;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+/* Modal Sucesso */
+.modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100; padding: 20px;
+}
+.modal.active { display: flex; }
+.modal-content {
+    background: #0f172a;
+    padding: 2.5rem;
+    border-radius: 2rem;
+    text-align: center;
+    border: 1px solid #22c55e;
+    max-width: 400px;
+}

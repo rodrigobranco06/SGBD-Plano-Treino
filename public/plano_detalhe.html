@@ -1,290 +1,291 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Detalhe do Plano</title>
-  <link rel="stylesheet" href="css/planos.css"/>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Detalhe do Plano - FitPlan PRO</title>
+    <link rel="stylesheet" href="css/planos.css">
 </head>
 <body>
-  <div class="page-wrapper">
-    <div class="panel-container">
-      <div class="panel-header">
-        <h1 id="tituloPlano">Plano</h1>
-        <p id="subPlano" class="muted">A carregar...</p>
-      </div>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h2>🏋️ FitPlan PRO</h2>
+            <nav>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="planos.html" class="nav-link active">Meus Planos</a>
+                <a href="historico.html" class="nav-link">Histórico</a>
+                <a href="exercicios.html" class="nav-link">Exercícios</a>
+            </nav>
+            <div class="logout-section">
+                <button class="btn-logout" id="logoutButton">Sair</button>
+            </div>
+        </aside>
 
-      <div class="panel-topbar">
-        <span id="infoUser"></span>
-        <div class="top-links">
-          <a href="/planos.html" class="link-ghost">&larr; Planos</a>
-          <a href="/exercicios.html" class="link-ghost">Exercícios</a>
-        </div>
-      </div>
+        <main class="main-content">
+            <header class="welcome-header">
+                <h1 id="tituloPlano">Plano</h1>
+                <p id="subPlano" class="muted">Gestão de exercícios por dia da semana.</p>
+                <p id="infoUser" style="color: #38bdf8; font-size: 0.85rem; margin-top: 10px;"></p>
+            </header>
 
-      <form id="formAdd" class="form-box">
-        <h2>Adicionar exercício ao plano</h2>
+            <form id="formAdd" class="form-box">
+                <h2 style="margin-bottom: 1.5rem; color: #f9fafb;">Adicionar Exercício ao Plano</h2>
+                
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="diaSemana">Dia da semana</label>
+                        <select id="diaSemana" required>
+                            <option value="">Seleciona...</option>
+                            <option>Segunda</option>
+                            <option>Terça</option>
+                            <option>Quarta</option>
+                            <option>Quinta</option>
+                            <option>Sexta</option>
+                            <option>Sábado</option>
+                            <option>Domingo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exercicio">Exercício</label>
+                        <select id="exercicio" required>
+                            <option value="">A carregar...</option>
+                        </select>
+                    </div>
+                </div>
 
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="diaSemana">Dia da semana</label>
-            <select id="diaSemana" required>
-              <option value="">Seleciona...</option>
-              <option>Segunda</option><option>Terça</option><option>Quarta</option>
-              <option>Quinta</option><option>Sexta</option><option>Sábado</option><option>Domingo</option>
-            </select>
-          </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="ordem">Ordem de execução</label>
+                        <input id="ordem" type="number" min="1" value="1" />
+                    </div>
+                    <div class="form-group">
+                        <label for="descanso">Descanso (segundos)</label>
+                        <input id="descanso" type="number" min="0" placeholder="Ex: 90"/>
+                    </div>
+                </div>
 
-          <div class="form-group">
-            <label for="exercicio">Exercício</label>
-            <select id="exercicio" required>
-              <option value="">A carregar exercícios...</option>
-            </select>
-          </div>
-        </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="series">Séries</label>
+                        <input id="series" type="number" min="1" placeholder="Ex: 3" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="reps">Repetições</label>
+                        <input id="reps" type="number" min="1" placeholder="Ex: 12" required />
+                    </div>
+                </div>
 
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="ordem">Ordem</label>
-            <input id="ordem" type="number" min="1" value="1" />
-          </div>
-          <div class="form-group">
-            <label for="descanso">Descanso (seg)</label>
-            <input id="descanso" type="number" min="0" placeholder="Ex.: 90"/>
-          </div>
-        </div>
+                <div class="form-group">
+                    <label for="carga">Carga sugerida (kg)</label>
+                    <input id="carga" type="number" step="0.5" min="0" placeholder="Ex: 40 (Opcional)"/>
+                </div>
 
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="series">Séries</label>
-            <input id="series" type="number" min="1" required />
-          </div>
-          <div class="form-group">
-            <label for="reps">Reps</label>
-            <input id="reps" type="number" min="1" required />
-          </div>
-        </div>
+                <button class="primary-button" type="submit">Adicionar ao Plano</button>
+                <p id="mensagem" class="mensagem"></p>
+            </form>
 
-        <div class="form-group">
-          <label for="carga">Carga sugerida (kg) (opcional)</label>
-          <input id="carga" type="number" step="0.5" min="0" placeholder="Ex.: 40"/>
-        </div>
-
-        <button class="primary-button" type="submit">Adicionar ao plano</button>
-        <p id="mensagem" class="mensagem"></p>
-      </form>
-
-      <div class="list-section">
-        <h2>Exercícios no plano</h2>
-        <div id="conteudo" class="days-wrap">A carregar...</div>
-      </div>
+            <div class="list-section">
+                <h2>Organização Semanal</h2>
+                <div id="conteudo" class="days-wrap">
+                    <p class="muted">A carregar exercícios...</p>
+                </div>
+            </div>
+        </main>
     </div>
-  </div>
 
 <script>
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (!user) window.location.href = "/login.html";
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) window.location.href = "/login.html";
 
-  const roleTratado = user.role === "admin" ? "Admin" : "Atleta";
-  document.getElementById("infoUser").textContent = `Autenticado como: ${user.nome} — ${roleTratado}`;
+    const roleTratado = user.role === "admin" ? "Admin" : "Atleta";
+    document.getElementById("infoUser").textContent = `Autenticado como: ${user.nome} — ${roleTratado}`;
 
-  const params = new URLSearchParams(window.location.search);
-  const planoId = params.get("planoId");
-  if (!planoId) window.location.href = "/planos.html";
+    const params = new URLSearchParams(window.location.search);
+    const planoId = params.get("planoId");
+    if (!planoId) window.location.href = "/planos.html";
 
-  const tituloPlano = document.getElementById("tituloPlano");
-  const subPlano = document.getElementById("subPlano");
-  const selectEx = document.getElementById("exercicio");
-  const conteudo = document.getElementById("conteudo");
-  const mensagemEl = document.getElementById("mensagem");
-  const formAdd = document.getElementById("formAdd");
+    const tituloPlano = document.getElementById("tituloPlano");
+    const subPlano = document.getElementById("subPlano");
+    const selectEx = document.getElementById("exercicio");
+    const conteudo = document.getElementById("conteudo");
+    const mensagemEl = document.getElementById("mensagem");
+    const formAdd = document.getElementById("formAdd");
 
-  function setMensagem(texto, tipo) {
-    mensagemEl.textContent = texto || "";
-    mensagemEl.className = "mensagem";
-    if (tipo === "erro") mensagemEl.classList.add("mensagem-erro");
-    if (tipo === "sucesso") mensagemEl.classList.add("mensagem-sucesso");
-  }
-
-  async function carregarPlano() {
-    const resp = await fetch(`/api/planos/${planoId}/detalhe/${user.id}`);
-    const plano = await resp.json();
-    if (!resp.ok) {
-      alert(plano.mensagem || "Plano não encontrado.");
-      window.location.href = "/planos.html";
-      return;
-    }
-    tituloPlano.textContent = plano.nome;
-    subPlano.textContent = plano.objetivo ? `Objetivo: ${plano.objetivo}` : "Sem objetivo definido";
-  }
-
-  async function carregarExerciciosSelect() {
-    const resp = await fetch("/api/exercicios");
-    const exs = await resp.json();
-    selectEx.innerHTML = "";
-
-    if (!Array.isArray(exs) || exs.length === 0) {
-      selectEx.innerHTML = `<option value="">Sem exercícios (cria em Exercícios)</option>`;
-      selectEx.disabled = true;
-      return;
+    function setMensagem(texto, tipo) {
+        mensagemEl.textContent = texto || "";
+        mensagemEl.className = "mensagem";
+        if (tipo === "erro") mensagemEl.classList.add("mensagem-erro");
+        if (tipo === "sucesso") mensagemEl.classList.add("mensagem-sucesso");
     }
 
-    selectEx.disabled = false;
-    selectEx.innerHTML = `<option value="">Seleciona...</option>`;
-    exs.forEach(e => {
-      const opt = document.createElement("option");
-      opt.value = e.id;
-      opt.textContent = `${e.grupo_nome} — ${e.nome}`;
-      selectEx.appendChild(opt);
-    });
-  }
-
-  function agruparPorDia(itens) {
-    const dias = ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
-    const map = {};
-    dias.forEach(d => map[d] = []);
-    (itens || []).forEach(i => {
-      const d = i.dia_semana || "Segunda";
-      if (!map[d]) map[d] = [];
-      map[d].push(i);
-    });
-    return { dias, map };
-  }
-
-  async function carregarPlanoExercicios() {
-    const resp = await fetch(`/api/plano-exercicios/${planoId}`);
-    const itens = await resp.json();
-
-    if (!Array.isArray(itens) || itens.length === 0) {
-      conteudo.innerHTML = `<div class="muted">Ainda não adicionaste exercícios ao plano.</div>`;
-      return;
+    async function carregarPlano() {
+        const resp = await fetch(`/api/planos/${planoId}/detalhe/${user.id}`);
+        const plano = await resp.json();
+        if (!resp.ok) {
+            alert(plano.mensagem || "Plano não encontrado.");
+            window.location.href = "/planos.html";
+            return;
+        }
+        tituloPlano.textContent = plano.nome;
+        subPlano.textContent = plano.objetivo ? `Objetivo: ${plano.objetivo}` : "Sem objetivo definido";
     }
 
-    const { dias, map } = agruparPorDia(itens);
-    conteudo.innerHTML = "";
+    async function carregarExerciciosSelect() {
+        const resp = await fetch("/api/exercicios");
+        const exs = await resp.json();
+        selectEx.innerHTML = "";
 
-    dias.forEach(dia => {
-      const lista = map[dia];
-      if (!lista || lista.length === 0) return;
-
-      const card = document.createElement("div");
-      card.className = "day-card";
-
-      const h = document.createElement("h3");
-      h.textContent = dia;
-      card.appendChild(h);
-
-      lista.forEach(item => {
-        const row = document.createElement("div");
-        row.className = "row";
-
-        const left = document.createElement("div");
-        left.className = "row-left";
-
-        const title = document.createElement("div");
-        title.className = "row-title";
-        title.textContent = `${item.ordem}. ${item.exercicio_nome} (${item.grupo_nome})`;
-
-        const meta = document.createElement("div");
-        meta.className = "row-meta";
-        meta.textContent =
-          `${item.series}x${item.reps}` +
-          (item.carga_sugerida_kg != null ? ` • ${item.carga_sugerida_kg} kg` : "") +
-          (item.descanso_segundos != null ? ` • descanso ${item.descanso_segundos}s` : "");
-
-        left.appendChild(title);
-        left.appendChild(meta);
-
-        // preview do vídeo (se existir)
-        if (item.video_caminho) {
-          const vw = document.createElement("div");
-          vw.className = "exercise-video-wrapper";
-          const v = document.createElement("video");
-          v.className = "exercise-video";
-          v.controls = true;
-          v.preload = "metadata";
-          v.src = item.video_caminho;
-          vw.appendChild(v);
-          left.appendChild(vw);
+        if (!Array.isArray(exs) || exs.length === 0) {
+            selectEx.innerHTML = `<option value="">Sem exercícios (cria em Exercícios)</option>`;
+            selectEx.disabled = true;
+            return;
         }
 
-        const actions = document.createElement("div");
-        actions.className = "row-actions";
+        selectEx.disabled = false;
+        selectEx.innerHTML = `<option value="">Seleciona o exercício...</option>`;
+        exs.forEach(e => {
+            const opt = document.createElement("option");
+            opt.value = e.id;
+            opt.textContent = `${e.grupo_nome} — ${e.nome}`;
+            selectEx.appendChild(opt);
+        });
+    }
 
-        const btnRemover = document.createElement("button");
-        btnRemover.className = "danger-button";
-        btnRemover.textContent = "Remover";
-        btnRemover.onclick = async () => {
-          if (!confirm(`Remover "${item.exercicio_nome}" do plano?`)) return;
-          const r = await fetch(`/api/plano-exercicios/${item.id}`, { method: "DELETE" });
-          const data = await r.json();
-          if (r.ok) {
-            setMensagem(data.mensagem, "sucesso");
-            carregarPlanoExercicios();
-          } else {
-            setMensagem(data.mensagem || "Erro ao remover.", "erro");
-          }
+    function agruparPorDia(itens) {
+        const dias = ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
+        const map = {};
+        dias.forEach(d => map[d] = []);
+        (itens || []).forEach(i => {
+            const d = i.dia_semana || "Segunda";
+            if (!map[d]) map[d] = [];
+            map[d].push(i);
+        });
+        return { dias, map };
+    }
+
+    async function carregarPlanoExercicios() {
+        const resp = await fetch(`/api/plano-exercicios/${planoId}`);
+        const itens = await resp.json();
+
+        if (!Array.isArray(itens) || itens.length === 0) {
+            conteudo.innerHTML = `<div class="list-empty">Ainda não adicionaste exercícios ao plano.</div>`;
+            return;
+        }
+
+        const { dias, map } = agruparPorDia(itens);
+        conteudo.innerHTML = "";
+
+        dias.forEach(dia => {
+            const lista = map[dia];
+            if (!lista || lista.length === 0) return;
+
+            const card = document.createElement("div");
+            card.className = "day-card";
+
+            const h = document.createElement("h3");
+            h.textContent = dia;
+            card.appendChild(h);
+
+            lista.forEach(item => {
+                const row = document.createElement("div");
+                row.className = "row";
+
+                const left = document.createElement("div");
+                left.className = "item-left";
+
+                const title = document.createElement("div");
+                title.className = "row-title";
+                title.textContent = `${item.ordem}. ${item.exercicio_nome} (${item.grupo_nome})`;
+
+                const meta = document.createElement("div");
+                meta.className = "row-meta";
+                meta.textContent = 
+                    `${item.series} séries x ${item.reps} reps` + 
+                    (item.carga_sugerida_kg ? ` • ${item.carga_sugerida_kg} kg` : "") + 
+                    (item.descanso_segundos ? ` • ${item.descanso_segundos}s descanso` : "");
+
+                left.appendChild(title);
+                left.appendChild(meta);
+
+                if (item.video_caminho) {
+                    const vw = document.createElement("div");
+                    vw.className = "exercise-video-wrapper";
+                    const v = document.createElement("video");
+                    v.className = "exercise-video";
+                    v.controls = true;
+                    v.preload = "metadata";
+                    v.src = item.video_caminho;
+                    vw.appendChild(v);
+                    left.appendChild(vw);
+                }
+
+                const actions = document.createElement("div");
+                actions.className = "item-actions";
+
+                const btnRemover = document.createElement("button");
+                btnRemover.className = "danger-button";
+                btnRemover.textContent = "Remover";
+                btnRemover.onclick = async () => {
+                    if (!confirm(`Remover "${item.exercicio_nome}"?`)) return;
+                    const r = await fetch(`/api/plano-exercicios/${item.id}`, { method: "DELETE" });
+                    if (r.ok) {
+                        setMensagem("Exercício removido", "sucesso");
+                        carregarPlanoExercicios();
+                    }
+                };
+
+                actions.appendChild(btnRemover);
+                row.appendChild(left);
+                row.appendChild(actions);
+                card.appendChild(row);
+            });
+
+            conteudo.appendChild(card);
+        });
+    }
+
+    formAdd.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        setMensagem("", "");
+
+        const dados = {
+            plano_id: planoId,
+            exercicio_id: selectEx.value,
+            dia_semana: document.getElementById("diaSemana").value,
+            ordem: document.getElementById("ordem").value,
+            series: document.getElementById("series").value,
+            reps: document.getElementById("reps").value,
+            descanso_segundos: document.getElementById("descanso").value,
+            carga_sugerida_kg: document.getElementById("carga").value
         };
 
-        actions.appendChild(btnRemover);
+        const resp = await fetch("/api/plano-exercicios", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+        });
 
-        row.appendChild(left);
-        row.appendChild(actions);
-        card.appendChild(row);
-      });
-
-      conteudo.appendChild(card);
-    });
-  }
-
-  formAdd.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    setMensagem("", "");
-
-    const dia_semana = document.getElementById("diaSemana").value;
-    const exercicio_id = selectEx.value;
-    const ordem = document.getElementById("ordem").value;
-    const series = document.getElementById("series").value;
-    const reps = document.getElementById("reps").value;
-    const descanso_segundos = document.getElementById("descanso").value;
-    const carga_sugerida_kg = document.getElementById("carga").value;
-
-    if (!dia_semana || !exercicio_id || !series || !reps) {
-      setMensagem("Preenche dia, exercício, séries e reps.", "erro");
-      return;
-    }
-
-    const resp = await fetch("/api/plano-exercicios", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        plano_id: planoId,
-        exercicio_id,
-        dia_semana,
-        ordem,
-        series,
-        reps,
-        descanso_segundos,
-        carga_sugerida_kg
-      })
+        if (resp.ok) {
+            setMensagem("Exercício adicionado!", "sucesso");
+            formAdd.reset();
+            document.getElementById("ordem").value = 1;
+            carregarPlanoExercicios();
+        } else {
+            const data = await resp.json();
+            setMensagem(data.mensagem || "Erro ao adicionar.", "erro");
+        }
     });
 
-    const data = await resp.json();
-    if (resp.ok) {
-      setMensagem(data.mensagem, "sucesso");
-      formAdd.reset();
-      document.getElementById("ordem").value = 1;
-      carregarPlanoExercicios();
-    } else {
-      setMensagem(data.mensagem || "Erro ao adicionar.", "erro");
-    }
-  });
+    document.getElementById('logoutButton').onclick = () => {
+        localStorage.removeItem("user");
+        window.location.href = "/login.html";
+    };
 
-  (async function init(){
-    await carregarPlano();
-    await carregarExerciciosSelect();
-    await carregarPlanoExercicios();
-  })();
+    (async function init(){
+        await carregarPlano();
+        await carregarExerciciosSelect();
+        await carregarPlanoExercicios();
+    })();
 </script>
 </body>
 </html>

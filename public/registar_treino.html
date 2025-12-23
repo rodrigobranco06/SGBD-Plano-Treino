@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registar Treino - FitPlan PRO</title>
+    <link rel="stylesheet" href="css/registar_treino.css">
+</head>
+<body>
+
+    <div class="workout-page">
+        <header class="workout-header">
+            <a href="/dashboard.html" class="back-link">✕ Cancelar Treino</a>
+            <h1 id="nomePlano">A carregar...</h1>
+            <p id="dataAtual"></p>
+        </header>
+
+        <main id="exerciciosContainer">
+            </main>
+
+        <footer class="workout-footer">
+            <textarea id="notasTreino" placeholder="Notas sobre o treino (opcional)..."></textarea>
+            <button id="btnFinalizar" class="btn-finish">FINALIZAR SESSÃO</button>
+        </footer>
+    </div>
+
+    <div class="modal" id="modalSucesso">
+        <div class="modal-content">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+            <h2>Treino Concluído!</h2>
+            <p>Os teus dados foram guardados com sucesso.</p>
+            <button onclick="window.location.href='/dashboard.html'" class="btn-finish" style="margin-top: 2rem; width: 100%;">
+                Voltar à Dashboard
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem("user"));
+        const params = new URLSearchParams(window.location.search);
+        const planoId = params.get("planoId");
+
+        if (!user) window.location.href = "/login.html";
+        document.getElementById("dataAtual").textContent = new Date().toLocaleDateString('pt-PT');
+
+        async function carregarExercicios() {
+            const resp = await fetch(`/api/plano-exercicios/${planoId}`);
+            const itens = await resp.json();
+            renderizar(itens);
+        }
+
+        function renderizar(itens) {
+            const container = document.getElementById("exerciciosContainer");
+            container.innerHTML = "";
+
+            itens.forEach((item, idx) => {
+                const section = document.createElement("section");
+                section.className = "exercise-block";
+                section.dataset.exId = item.exercicio_id;
+
+                section.innerHTML = `
+                    <div class="ex-info">
+                        <h3>${item.exercicio_nome}</h3>
+                        <p>${item.grupo_nome} | Sugestão: ${item.series}x${item.reps}</p>
+                    </div>
+
+                    <div class="serie-header">
+                        <span>Série</span>
+                        <span>Peso (kg)</span>
+                        <span>Reps</span>
+                        <span>Esforço</span>
+                    </div>
+
+                    <div class="series-list">
+                        ${gerarLinhasSeries(item.series, item.reps)}
+                    </div>
+                `;
+                container.appendChild(section);
+            });
+        }
+
+        function gerarLinhasSeries(qtd, repsSugeridas) {
+            let html = "";
+            for (let i = 1; i <= qtd; i++) {
+                html += `
+                    <div class="serie-row">
+                        <span class="serie-num">${i}</span>
+                        <input type="number" step="0.5" placeholder="0" class="input-carga">
+                        <input type="number" value="${repsSugeridas}" class="input-reps">
+                        <input type="number" min="1" max="10" placeholder="1-10" class="input-rpe">
+                    </div>
+                `;
+            }
+            return html;
+        }
+
+        document.getElementById("btnFinalizar").addEventListener("click", async () => {
+            const blocos = document.querySelectorAll(".exercise-block");
+            const dados = {
+                utilizador_id: user.id,
+                plano_id: planoId,
+                notas: document.getElementById("notasTreino").value,
+                exercicios: []
+            };
+
+            blocos.forEach(bloco => {
+                const seriesData = [];
+                bloco.querySelectorAll(".serie-row").forEach((row, i) => {
+                    seriesData.push({
+                        numero: i + 1,
+                        carga: row.querySelector(".input-carga").value || 0,
+                        reps: row.querySelector(".input-reps").value || 0,
+                        percepcao_esforco: row.querySelector(".input-rpe").value || null
+                    });
+                });
+                dados.exercicios.push({ exercicio_id: bloco.dataset.exId, series: seriesData });
+            });
+
+            const resp = await fetch("/api/registar-treino", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dados)
+            });
+
+            if (resp.ok) document.getElementById("modalSucesso").classList.add("active");
+        });
+
+        carregarExercicios();
+    </script>
+</body>
+</html>

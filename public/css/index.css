@@ -1,13 +1,10 @@
 
 body {
-    /* Desativa o display:flex do body herdado do login.css para permitir layout vertical */
     display: block !important; 
     min-height: auto;
-    /* Adicionar um fundo mais interessante à página */
     background: #06090e; 
 }
 
-/* Container de largura máxima para o conteúdo (Similar ao .page do exercicios.css) */
 .page-content {
     width: 100%;
     max-width: 1100px;
@@ -15,13 +12,10 @@ body {
     padding: 0 1.5rem;
 }
 
-/* --------------------------------------
-   SECÇÃO HERO (TOPO)
-   -------------------------------------- */
+
 .hero-section {
     padding: 6rem 0;
     text-align: center;
-    /* Fundo para dar profundidade, ligeiramente mais claro que o body */
     background: radial-gradient(circle at top, #151d28, #06090e);
     border-bottom: 1px solid rgba(148, 163, 184, 0.1);
 }
@@ -77,14 +71,11 @@ body {
     gap: 1.5rem;
 }
 
-/* Botão de Destaque (CTA Primário) */
 .hero-cta-primary {
-    /* Reutiliza o estilo base do auth-button do login.css, mas com mais padding */
     padding: 1rem 2rem;
     font-size: 1.1rem;
 }
 
-/* Responsividade do HERO */
 @media (max-width: 768px) {
     .hero-title {
         font-size: 2.5rem;
@@ -101,13 +92,10 @@ body {
     }
 }
 
-/* --------------------------------------
-   SECÇÃO DE VALOR (FEATURES)
-   -------------------------------------- */
 .value-proposition {
     padding: 4rem 0;
     text-align: center;
-    background: #0b1016; /* Cor de fundo ligeiramente diferente do hero */
+    background: #0b1016; 
 }
 
 .value-proposition h2 {
@@ -124,7 +112,7 @@ body {
 }
 
 .feature-card {
-    background: #1f2933; /* Fundo mais escuro */
+    background: #1f2933; 
     padding: 2rem;
     border-radius: 1rem;
     transition: transform 0.2s;
@@ -148,9 +136,7 @@ body {
     margin-bottom: 0.75rem;
 }
 
-/* --------------------------------------
-   PROVA SOCIAL (TESTEMUNHO)
-   -------------------------------------- */
+
 .testimonial-section {
     padding: 5rem 0;
     text-align: center;
@@ -170,7 +156,7 @@ body {
     background: #0f172a;
     padding: 2.5rem;
     border-radius: 1rem;
-    border-left: 5px solid #38bdf8; /* Destaque */
+    border-left: 5px solid #38bdf8; 
 }
 
 .testimonial-card p {
@@ -196,9 +182,7 @@ body {
     color: #22c55e;
 }
 
-/* --------------------------------------
-   CTA DE ENCERRAMENTO
-   -------------------------------------- */
+
 .final-cta {
     padding: 3rem 1.5rem;
     text-align: center;
@@ -217,9 +201,7 @@ body {
     font-size: 1.2rem;
 }
 
-/* --------------------------------------
-   RODAPÉ AVANÇADO (FOOTER)
-   -------------------------------------- */
+
 .site-footer {
     background: #020617; 
     padding: 3rem 0 1.5rem;

@@ -1,0 +1,182 @@
+/* historico.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background: #0b1016;
+    color: #e5e7eb;
+    min-height: 100vh;
+}
+
+/* Layout Base */
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* --- SIDEBAR (BARRA LATERAL) --- */
+.sidebar {
+    width: 260px;
+    background: #020617;
+    padding: 2.5rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+    border-right: 1px solid rgba(148, 163, 184, 0.1);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.sidebar h2 {
+    color: #38bdf8;
+    font-size: 1.4rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #1f2933;
+    padding-bottom: 10px;
+}
+
+.nav-link {
+    display: block;
+    padding: 0.9rem 1.2rem;
+    color: #9ca3af;
+    text-decoration: none;
+    border-radius: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    background: #1f2933;
+    color: #38bdf8;
+}
+
+.nav-link.active {
+    border-left: 4px solid #38bdf8;
+}
+
+.logout-section {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    border-top: 1px solid #1f2933;
+}
+
+.btn-logout {
+    width: 100%;
+    padding: 0.9rem;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-logout:hover {
+    background: #b91c1c;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 3rem;
+    overflow-y: auto;
+}
+
+.welcome-header {
+    margin-bottom: 2.5rem;
+}
+
+.welcome-header h1 {
+    font-size: 2.4rem;
+    color: #f9fafb;
+}
+
+/* Lista de Histórico */
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.history-card {
+    background: #0f172a;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 1.2rem;
+    padding: 1.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    cursor: default; /* O card em si não tem cursor de clique */
+}
+
+.history-card::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 5px;
+    background: linear-gradient(to bottom, #38bdf8, #22c55e);
+}
+
+.history-info h3 {
+    color: #f9fafb;
+    font-size: 1.25rem;
+}
+
+.badge-plano {
+    display: inline-block;
+    background: rgba(34, 197, 94, 0.1);
+    color: #4ade80;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* Link de Detalhes - Único local clicável */
+.ver-detalhes-link {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: #38bdf8;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ver-detalhes-link:hover {
+    color: #22c55e;
+    text-decoration: underline;
+    transform: translateX(5px);
+}
+
+.history-date {
+    text-align: right;
+    color: #38bdf8;
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.btn-logout {
+    margin-top: auto;
+    width: 100%;
+    padding: 0.9rem;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-weight: bold;
+}

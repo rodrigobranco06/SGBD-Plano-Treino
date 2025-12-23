@@ -1,0 +1,146 @@
+/* verTreino.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background: #0b1016;
+    color: #e5e7eb;
+    min-height: 100vh;
+}
+
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.sidebar {
+    width: 260px;
+    background: #020617;
+    padding: 2.5rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
+    border-right: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.sidebar h2 {
+    color: #38bdf8;
+    font-size: 1.4rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #1f2933;
+}
+
+.nav-link {
+    display: block;
+    padding: 0.9rem 1.2rem;
+    color: #9ca3af;
+    text-decoration: none;
+    border-radius: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    background: #1f2933;
+    color: #38bdf8;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 3rem;
+    overflow-y: auto;
+}
+
+.welcome-header {
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    padding-bottom: 1rem;
+}
+
+.welcome-header h1 {
+    font-size: 2.2rem;
+    color: #f9fafb;
+}
+
+/* Blocos de Exercícios */
+.exercise-block {
+    background: #0f172a;
+    border-radius: 1.2rem;
+    padding: 1.8rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.exercise-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.exercise-header h3 {
+    color: #38bdf8;
+    font-size: 1.3rem;
+}
+
+.badge-grupo {
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+/* Tabela de Séries */
+.series-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.series-table th {
+    text-align: left;
+    color: #64748b;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    padding: 10px;
+    border-bottom: 2px solid #1e293b;
+}
+
+.series-table td {
+    padding: 12px 10px;
+    color: #e5e7eb;
+    border-bottom: 1px solid #1e293b;
+}
+
+.rpe-value {
+    background: #1e293b;
+    color: #22c55e;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.btn-logout {
+    margin-top: auto;
+    width: 100%;
+    padding: 0.9rem;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-weight: bold;
+}

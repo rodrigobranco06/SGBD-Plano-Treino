@@ -1,6 +1,6 @@
 /* grupos.css */
 
-/* Reset / base (coerente com login/registo) */
+
 * {
   margin: 0;
   padding: 0;
@@ -18,7 +18,6 @@ body {
   color: #e5e7eb;
 }
 
-/* Wrapper geral (para centralizar) */
 .page-wrapper {
   width: 100%;
   padding: 1.5rem;
@@ -26,7 +25,6 @@ body {
   justify-content: center;
 }
 
-/* Container principal, similar a register-container/auth-container */
 .panel-container {
   background: rgba(15, 23, 42, 0.94);
   padding: 2.4rem 2.6rem;
@@ -54,7 +52,6 @@ body {
   color: #9ca3af;
 }
 
-/* Top bar: info do user + link de voltar */
 .panel-topbar {
   display: flex;
   justify-content: space-between;
@@ -74,7 +71,6 @@ body {
   text-decoration: underline;
 }
 
-/* Form */
 .form-box {
   margin-bottom: 1.8rem;
   padding-bottom: 1.4rem;

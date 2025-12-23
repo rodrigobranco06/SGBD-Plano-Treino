@@ -1,194 +1,201 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exercícios</title>
-  <link rel="stylesheet" href="css/exercicios.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercícios - FitPlan PRO</title>
+    <link rel="stylesheet" href="css/planos.css">
+    <style>
+        /* Ajustes específicos para a barra de pesquisa de exercícios */
+        .filters-grid {
+            display: grid;
+            grid-template-columns: 200px 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+        @media (max-width: 800px) { .filters-grid { grid-template-columns: 1fr; } }
+        
+        .badge-muscular {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+
+        .video-container {
+            margin-top: auto; /* Empurra o vídeo para o fundo do card */
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-  <div class="page">
-    <div class="header">
-      <div class="title-block">
-        <h1>Exercícios</h1>
-        <p>Pesquisa exercícios por grupo muscular e por nome.</p>
-      </div>
 
-      <div class="nav">
-        <a id="linkAdicionar" href="/adicionarExercicios.html">Adicionar</a>
-        <a href="/dashboard.html">&larr; Dashboard</a>
-      </div>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h2>🏋️ FitPlan PRO</h2>
+            <nav>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="planos.html" class="nav-link">Meus Planos</a>
+                <a href="historico.html" class="nav-link">Histórico</a>
+                <a href="exercicios.html" class="nav-link active">Exercícios</a>
+            </nav>
+            <div class="logout-section">
+              <a href="perfil.html" class="nav-link" style="margin-bottom: 10px;">Perfil</a>
+              <button class="btn-logout" id="logoutButton">Sair</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="welcome-header">
+                <h1>Galeria de Exercícios</h1>
+                <p>Explora a biblioteca de movimentos ou adiciona novos.</p>
+                <div style="margin-top: 1rem;">
+                    <a id="linkAdicionar" href="adicionarExercicios.html" class="primary-button" style="display: inline-block; width: auto; text-decoration: none; font-size: 0.9rem; padding: 0.6rem 1.2rem;">
+                        + Adicionar Novo
+                    </a>
+                </div>
+            </header>
+
+            <div class="form-box">
+                <div class="filters-grid">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="filtroGrupo">Grupo Muscular</label>
+                        <select id="filtroGrupo">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="filtroNome">Pesquisar por nome</label>
+                        <input id="filtroNome" type="text" placeholder="Ex: Supino, Agachamento..." />
+                    </div>
+
+                    <div class="actions">
+                        <button id="btnPesquisar" class="secondary-button" type="button">Filtrar</button>
+                    </div>
+                </div>
+                <p id="contador" style="margin-top: 10px; color: #9ca3af; font-size: 0.9rem; text-align: right;"></p>
+            </div>
+
+            <div class="list-section">
+                <ul id="listaExercicios" class="list">
+                    <li class="list-empty">A carregar biblioteca...</li>
+                </ul>
+            </div>
+        </main>
     </div>
 
-    <div class="userbar">
-      <span id="infoUser"></span>
-    </div>
+    <script>
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) window.location.href = "/login.html";
 
-    <div class="filters">
-      <div class="filters-grid">
-        <div class="field">
-          <label for="filtroGrupo">Grupo muscular</label>
-          <select id="filtroGrupo">
-            <option value="">Todos</option>
-          </select>
-        </div>
+        // Controlo de acesso ao botão de adicionar
+        const linkAdicionar = document.getElementById("linkAdicionar");
+        if (user.role !== "admin") {
+            // Se quiseres que apenas admins adicionem:
+            linkAdicionar.style.display = "none";
+        }
 
-        <div class="field">
-          <label for="filtroNome">Nome do exercício</label>
-          <input id="filtroNome" type="text" placeholder="Ex.: supino, agachamento..." />
-        </div>
+        const filtroGrupo = document.getElementById("filtroGrupo");
+        const filtroNome = document.getElementById("filtroNome");
+        const btnPesquisar = document.getElementById("btnPesquisar");
+        const listaEl = document.getElementById("listaExercicios");
+        const contadorEl = document.getElementById("contador");
 
-        <div class="actions">
-          <button id="btnPesquisar" class="btn-primary" type="button">Pesquisar</button>
-          <button id="btnLimpar" class="btn-secondary" type="button">Limpar</button>
-        </div>
-      </div>
+        // Carregar grupos musculares para o select
+        async function carregarGrupos() {
+            try {
+                const resp = await fetch("/api/grupos-musculares");
+                const grupos = await resp.json();
+                filtroGrupo.innerHTML = `<option value="">Todos os Grupos</option>`;
+                grupos.forEach(g => {
+                    const opt = document.createElement("option");
+                    opt.value = g.id;
+                    opt.textContent = g.nome;
+                    filtroGrupo.appendChild(opt);
+                });
+            } catch (e) {
+                console.error("Erro ao carregar grupos", e);
+            }
+        }
 
-      <p id="mensagem" class="msg"></p>
-    </div>
+        function renderLista(exercicios) {
+            listaEl.innerHTML = "";
+            
+            if (!Array.isArray(exercicios) || exercicios.length === 0) {
+                contadorEl.textContent = "0 exercícios encontrados";
+                listaEl.innerHTML = `<li class="list-empty">Nenhum exercício encontrado com estes filtros.</li>`;
+                return;
+            }
 
-    <div class="results-head">
-      <h2>Resultados</h2>
-      <div id="contador" class="results-count"></div>
-    </div>
+            contadorEl.textContent = `${exercicios.length} exercício(s) encontrado(s)`;
 
-    <ul id="listaExercicios" class="grid">
-      <li class="empty">A carregar...</li>
-    </ul>
-  </div>
+            exercicios.forEach(e => {
+                const li = document.createElement("li");
+                li.className = "list-item"; // Usa o estilo de card do planos.css
+                
+                // Estrutura do Card
+                li.innerHTML = `
+                    <div class="item-left" style="width: 100%;">
+                        <span class="badge-muscular">${e.grupo_nome}</span>
+                        <h3>${e.nome}</h3>
+                        ${e.descricao ? `<p class="muted" style="margin-bottom: 1rem;">${e.descricao}</p>` : ''}
+                        
+                        ${e.video_caminho ? `
+                            <div class="video-container">
+                                <video class="exercise-video" controls preload="metadata" style="width: 100%; height: 180px;">
+                                    <source src="${e.video_caminho}" type="video/mp4">
+                                    O teu browser não suporta vídeo.
+                                </video>
+                            </div>
+                        ` : '<div class="muted" style="font-style:italic; margin-top:1rem;">Sem vídeo disponível.</div>'}
+                    </div>
+                `;
+                listaEl.appendChild(li);
+            });
+        }
 
-<script>
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (!user) window.location.href = "/login.html";
+        async function pesquisar() {
+            listaEl.innerHTML = `<li class="list-empty">A pesquisar...</li>`;
+            
+            const params = new URLSearchParams();
+            if (filtroGrupo.value) params.set("grupoId", filtroGrupo.value);
+            if (filtroNome.value.trim()) params.set("nome", filtroNome.value.trim());
 
-  const roleTratado = user.role === "admin" ? "Admin" : "Atleta";
-  document.getElementById("infoUser").textContent =
-    `Autenticado como: ${user.nome} — ${roleTratado}`;
+            try {
+                const resp = await fetch(`/api/exercicios?${params.toString()}`);
+                const exercicios = await resp.json();
+                renderLista(exercicios);
+            } catch (err) {
+                listaEl.innerHTML = `<li class="list-empty">Erro ao carregar exercícios.</li>`;
+            }
+        }
 
-  const linkAdicionar = document.getElementById("linkAdicionar");
-  if (user.role !== "admin") linkAdicionar.style.display = "none";
+        btnPesquisar.onclick = pesquisar;
+        
+        // Pesquisa automática ao escrever (debounce)
+        let timer = null;
+        filtroNome.oninput = () => {
+            clearTimeout(timer);
+            timer = setTimeout(pesquisar, 400);
+        };
+        filtroGrupo.onchange = pesquisar;
 
-  const filtroGrupo = document.getElementById("filtroGrupo");
-  const filtroNome = document.getElementById("filtroNome");
-  const btnPesquisar = document.getElementById("btnPesquisar");
-  const btnLimpar = document.getElementById("btnLimpar");
-  const listaEl = document.getElementById("listaExercicios");
-  const msgEl = document.getElementById("mensagem");
-  const contadorEl = document.getElementById("contador");
+        document.getElementById('logoutButton').onclick = () => {
+            localStorage.removeItem("user");
+            window.location.href = "/login.html";
+        };
 
-  function setMsg(texto, tipo) {
-    msgEl.textContent = texto || "";
-    msgEl.className = "msg";
-    if (tipo === "erro") msgEl.classList.add("error");
-    if (tipo === "sucesso") msgEl.classList.add("success");
-  }
-
-  async function carregarGrupos() {
-    const resp = await fetch("/api/grupos-musculares");
-    const grupos = await resp.json();
-
-    filtroGrupo.innerHTML = `<option value="">Todos</option>`;
-    (grupos || []).forEach(g => {
-      const opt = document.createElement("option");
-      opt.value = g.id;
-      opt.textContent = g.nome;
-      filtroGrupo.appendChild(opt);
-    });
-  }
-
-  function renderLista(exercicios) {
-    listaEl.innerHTML = "";
-
-    if (!Array.isArray(exercicios) || exercicios.length === 0) {
-      contadorEl.textContent = "0 resultados";
-      listaEl.innerHTML = `<li class="empty">Sem resultados.</li>`;
-      return;
-    }
-
-    contadorEl.textContent = `${exercicios.length} resultado(s)`;
-
-    exercicios.forEach(e => {
-      const li = document.createElement("li");
-      li.className = "card";
-
-      const top = document.createElement("div");
-      top.className = "card-top";
-
-      const title = document.createElement("div");
-      title.className = "card-title";
-      title.textContent = e.nome;
-
-      const badge = document.createElement("span");
-      badge.className = "badge";
-      badge.textContent = e.grupo_nome;
-
-      top.appendChild(title);
-      top.appendChild(badge);
-
-      li.appendChild(top);
-
-      if (e.descricao) {
-        const desc = document.createElement("p");
-        desc.className = "card-desc";
-        desc.textContent = e.descricao;
-        li.appendChild(desc);
-      }
-
-      if (e.video_caminho) {
-        const v = document.createElement("video");
-        v.className = "video";
-        v.controls = true;
-        v.preload = "metadata";
-        v.src = e.video_caminho;
-        li.appendChild(v);
-      }
-
-      listaEl.appendChild(li);
-    });
-  }
-
-  async function pesquisar() {
-    setMsg("", "");
-    listaEl.innerHTML = `<li class="empty">A pesquisar...</li>`;
-    contadorEl.textContent = "";
-
-    const params = new URLSearchParams();
-    if (filtroGrupo.value) params.set("grupoId", filtroGrupo.value);
-    if (filtroNome.value.trim()) params.set("nome", filtroNome.value.trim());
-
-    const resp = await fetch(`/api/exercicios?${params.toString()}`);
-    const exercicios = await resp.json();
-    renderLista(exercicios);
-  }
-
-  btnPesquisar.addEventListener("click", pesquisar);
-
-  btnLimpar.addEventListener("click", () => {
-    filtroGrupo.value = "";
-    filtroNome.value = "";
-    pesquisar();
-  });
-
-  // Enter no input faz pesquisar
-  filtroNome.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      pesquisar();
-    }
-  });
-
-  // opcional: pesquisar automático (fica muito “página de pesquisa”)
-  let timer = null;
-  filtroNome.addEventListener("input", () => {
-    clearTimeout(timer);
-    timer = setTimeout(pesquisar, 350);
-  });
-  filtroGrupo.addEventListener("change", pesquisar);
-
-  (async function init() {
-    await carregarGrupos();
-    await pesquisar();
-  })();
-</script>
+        // Inicialização
+        (async function init() {
+            await carregarGrupos();
+            await pesquisar();
+        })();
+    </script>
 </body>
 </html>

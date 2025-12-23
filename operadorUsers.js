@@ -17,7 +17,7 @@ class OperacoesUsers {
         utilizador.nome,
         utilizador.email,
         utilizador.password_hash,
-        utilizador.role || "atleta", // por defeito atleta
+        utilizador.role || "atleta", 
       ];
 
       ligacao.query(QUERY, params, (err, result) => {
@@ -26,13 +26,12 @@ class OperacoesUsers {
           return reject(err);
         }
 
-        // podes devolver o id inserido se quiseres
         resolve(result.insertId);
       });
     });
   }
 
-  // Obter utilizador pelo email (para login, verificar se existe, etc.)
+  // Obter utilizador pelo email 
   obterUtilizadorPorEmail(email) {
     return new Promise((resolve, reject) => {
       const QUERY = `
@@ -49,7 +48,7 @@ class OperacoesUsers {
         }
 
         if (result.length === 0) {
-          // não encontrou ninguém com esse email
+          // quando nao encontra ninguém
           return resolve(null);
         }
 

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Treinos - FitPlan PRO</title>
+    
+    <link rel="stylesheet" href="css/historico.css">
+
+</head>
+<body>
+
+    <div class="dashboard-layout">
+
+        <aside class="sidebar">
+            <h2>🏋️ FitPlan PRO</h2>
+            <nav>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="planos.html" class="nav-link">Meus Planos</a>
+                <a href="historico.html" class="nav-link active">Histórico</a>
+                <a href="exercicios.html" class="nav-link">Exercícios</a>
+            </nav>
+            <div class="logout-section">
+                <a href="perfil.html" class="nav-link" style="margin-bottom: 10px;">Perfil</a>
+                <button class="btn-logout" id="logoutButton">Sair</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="welcome-header">
+                <h1>O Teu Percurso</h1>
+                <p>Consulta as tuas sessões passadas e monitoriza a tua evolução.</p>
+            </header>
+
+            <section id="listaHistorico" class="history-list">
+                </section>
+
+        </main>
+
+    </div>
+
+    <script>
+
+        const user = JSON.parse(localStorage.getItem("user"));
+        
+        if (!user) {
+            window.location.href = "/login.html";
+        }
+
+        async function carregarHistorico() {
+            
+            const container = document.getElementById("listaHistorico");
+            container.innerHTML = "<p>A carregar registos...</p>";
+
+            try {
+                // Rota que utiliza o método listarHistorico do operador
+                const resp = await fetch(`/api/historico/${user.id}`);
+                const treinos = await resp.json();
+
+                if (treinos.length === 0) {
+                    container.innerHTML = "<p>Ainda não tens treinos registados.</p>";
+                    return;
+                }
+
+                container.innerHTML = "";
+
+                treinos.forEach(treino => {
+                    
+                    const data = new Date(treino.data_treino).toLocaleDateString('pt-PT');
+                    const card = document.createElement("div");
+                    card.className = "history-card";
+                    
+                    card.innerHTML = `
+                        <div class="history-info">
+                            <span class="badge-plano">Concluído</span>
+                            <h3 style="margin-top: 8px;">${treino.nome_plano || 'Treino Individual'}</h3>
+                            <p style="color: #9ca3af; font-size: 0.9rem; margin-top: 8px;">
+                                ${treino.notas ? `"${treino.notas}"` : 'Sem notas registadas.'}
+                            </p>
+                            <div class="ver-detalhes-link" onclick="window.location.href='verTreino.html?id=${treino.id}'">
+                                Ver detalhes →
+                            </div>
+                        </div>
+                        <div class="history-date">
+                            ${data}
+                        </div>
+                    `;
+
+                    container.appendChild(card);
+                });
+
+            } catch (err) {
+                console.error("Erro ao carregar histórico:", err);
+                container.innerHTML = "<p>Erro ao carregar o histórico. Tenta novamente.</p>";
+            }
+        }
+
+        document.getElementById('logoutButton').onclick = () => {
+            localStorage.removeItem("user");
+            window.location.href = "/login.html";
+        };
+
+        carregarHistorico();
+
+    </script>
+
+</body>
+</html>

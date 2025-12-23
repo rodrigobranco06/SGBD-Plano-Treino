@@ -1,299 +1,228 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Planos de Treino</title>
-  <link rel="stylesheet" href="css/planos.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Planos de Treino - FitPlan PRO</title>
+    <link rel="stylesheet" href="css/planos.css">
 </head>
 <body>
-  <div class="page-wrapper">
-    <div class="panel-container">
-      <div class="panel-header">
-        <h1>Planos de Treino</h1>
-        <p>Cria e gere os teus planos.</p>
-      </div>
 
-      <div class="panel-topbar">
-        <span id="infoUser"></span>
-        <div class="top-links">
-          <a href="/exercicios.html" class="link-ghost">Exercícios</a>
-          <a href="/dashboard.html" class="link-ghost">&larr; Dashboard</a>
-        </div>
-      </div>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h2>🏋️ FitPlan PRO</h2>
+            <nav>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="planos.html" class="nav-link active">Meus Planos</a>
+                <a href="historico.html" class="nav-link">Histórico</a>
+                <a href="exercicios.html" class="nav-link">Exercícios</a>
+            </nav>
+            <div class="logout-section">
+                <a href="perfil.html" class="nav-link" style="margin-bottom: 10px;">Perfil</a>
+                <button class="btn-logout" id="logoutButton">Sair</button>
+            </div>
+        </aside>
 
-      <form id="formPlano" class="form-box">
-        <div class="form-group">
-          <label for="nomePlano">Nome do plano</label>
-          <input id="nomePlano" type="text" placeholder="Ex.: Hipertrofia 4x/semana" required />
-        </div>
+        <main class="main-content">
+            <header class="welcome-header">
+                <h1>Os Teus Planos</h1>
+                <p id="infoUser" style="color: #9ca3af; font-size: 0.9rem; margin-top: 5px;"></p>
+            </header>
 
-        <div class="form-group">
-          <label for="objetivoPlano">Objetivo (opcional)</label>
-          <input id="objetivoPlano" type="text" placeholder="Ex.: Ganho de massa muscular" />
-        </div>
+            <form id="formPlano" class="form-box">
+                <div class="form-group">
+                    <label for="nomePlano">Nome do plano</label>
+                    <input id="nomePlano" type="text" placeholder="Ex.: Hipertrofia ABC" required />
+                </div>
+                <div class="form-group">
+                    <label for="objetivoPlano">Objetivo (opcional)</label>
+                    <input id="objetivoPlano" type="text" placeholder="Ex.: Ganho de massa" />
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="dataInicio">Data início</label>
+                        <input id="dataInicio" type="date" />
+                    </div>
+                    <div class="form-group">
+                        <label for="dataFim">Data fim</label>
+                        <input id="dataFim" type="date" />
+                    </div>
+                </div>
+                <button class="primary-button" type="submit">Criar Novo Plano</button>
+                <p id="mensagem" class="mensagem"></p>
+            </form>
 
-        <div class="grid-2">
-          <div class="form-group">
-            <label for="dataInicio">Data início (opcional)</label>
-            <input id="dataInicio" type="date" />
-          </div>
-          <div class="form-group">
-            <label for="dataFim">Data fim (opcional)</label>
-            <input id="dataFim" type="date" />
-          </div>
-        </div>
-
-        <button class="primary-button" type="submit">Criar plano</button>
-        <p id="mensagem" class="mensagem"></p>
-      </form>
-
-      <div class="list-section">
-        <h2>Os teus planos</h2>
-        <ul id="listaPlanos" class="list">
-          <li class="list-empty">A carregar...</li>
-        </ul>
-      </div>
+            <div class="list-section">
+                <h2>Planos Ativos</h2>
+                <ul id="listaPlanos" class="list">
+                    <li class="list-empty">A carregar...</li>
+                </ul>
+            </div>
+        </main>
     </div>
-  </div>
 
-  <!-- MODAL EDITAR PLANO -->
     <div id="modalEditar" class="modal hidden">
-    <div class="modal-card">
-        <div class="modal-header">
-        <h2>Editar plano</h2>
-        <button id="btnFecharModal" class="modal-close">✕</button>
-        </div>
-
-        <form id="formEditarPlano">
-        <input type="hidden" id="editPlanoId" />
-
-        <div class="form-group">
-            <label for="editNome">Nome</label>
-            <input id="editNome" type="text" required />
-        </div>
-
-        <div class="form-group">
-            <label for="editObjetivo">Objetivo (opcional)</label>
-            <input id="editObjetivo" type="text" />
-        </div>
-
-        <div class="grid-2">
-            <div class="form-group">
-            <label for="editDataInicio">Data início</label>
-            <input id="editDataInicio" type="date" />
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Editar Plano</h2>
+                <button id="btnFecharModal" class="modal-close">✕</button>
             </div>
-            <div class="form-group">
-            <label for="editDataFim">Data fim</label>
-            <input id="editDataFim" type="date" />
-            </div>
+            <form id="formEditarPlano">
+                <input type="hidden" id="editPlanoId" />
+                <div class="form-group">
+                    <label for="editNome">Nome</label>
+                    <input id="editNome" type="text" required />
+                </div>
+                <div class="form-group">
+                    <label for="editObjetivo">Objetivo</label>
+                    <input id="editObjetivo" type="text" />
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="editDataInicio">Início</label>
+                        <input id="editDataInicio" type="date" />
+                    </div>
+                    <div class="form-group">
+                        <label for="editDataFim">Fim</label>
+                        <input id="editDataFim" type="date" />
+                    </div>
+                </div>
+                <button type="submit" class="primary-button">Guardar Alterações</button>
+                <p id="mensagemEditar" class="mensagem"></p>
+            </form>
         </div>
-
-        <button type="submit" class="primary-button">Guardar alterações</button>
-        <p id="mensagemEditar" class="mensagem"></p>
-        </form>
-    </div>
     </div>
 
+    <script>
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) window.location.href = "/login.html";
 
-<script>
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (!user) window.location.href = "/login.html";
+        const roleTratado = user.role === "admin" ? "Admin" : "Atleta";
+        document.getElementById("infoUser").textContent = `Autenticado como: ${user.nome} — ${roleTratado}`;
 
-  const roleTratado = user.role === "admin" ? "Admin" : "Atleta";
-  document.getElementById("infoUser").textContent = `Autenticado como: ${user.nome} — ${roleTratado}`;
+        const formPlano = document.getElementById("formPlano");
+        const mensagemEl = document.getElementById("mensagem");
+        const listaPlanosEl = document.getElementById("listaPlanos");
+        const modal = document.getElementById("modalEditar");
+        const btnFecharModal = document.getElementById("btnFecharModal");
+        const formEditar = document.getElementById("formEditarPlano");
 
-  const formPlano = document.getElementById("formPlano");
-  const mensagemEl = document.getElementById("mensagem");
-  const listaPlanosEl = document.getElementById("listaPlanos");
+        function setMensagem(texto, tipo) {
+            mensagemEl.textContent = texto || "";
+            mensagemEl.className = "mensagem";
+            if (tipo === "erro") mensagemEl.classList.add("mensagem-erro");
+            if (tipo === "sucesso") mensagemEl.classList.add("mensagem-sucesso");
+        }
 
-  function setMensagem(texto, tipo) {
-    mensagemEl.textContent = texto || "";
-    mensagemEl.className = "mensagem";
-    if (tipo === "erro") mensagemEl.classList.add("mensagem-erro");
-    if (tipo === "sucesso") mensagemEl.classList.add("mensagem-sucesso");
-  }
+        formPlano.onsubmit = async (e) => {
+            e.preventDefault();
+            setMensagem("", "");
 
-  const modal = document.getElementById("modalEditar");
-const btnFecharModal = document.getElementById("btnFecharModal");
-const formEditar = document.getElementById("formEditarPlano");
-const msgEditar = document.getElementById("mensagemEditar");
+            const dados = {
+                utilizador_id: user.id,
+                nome: document.getElementById("nomePlano").value.trim(),
+                objetivo: document.getElementById("objetivoPlano").value.trim(),
+                data_inicio: document.getElementById("dataInicio").value,
+                data_fim: document.getElementById("dataFim").value
+            };
 
-function setMsgEditar(texto, tipo) {
-  msgEditar.textContent = texto || "";
-  msgEditar.className = "mensagem";
-  if (tipo === "erro") msgEditar.classList.add("mensagem-erro");
-  if (tipo === "sucesso") msgEditar.classList.add("mensagem-sucesso");
-}
+            try {
+                const resp = await fetch("/api/planos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dados)
+                });
 
-function abrirModalEditar(plano) {
-  document.getElementById("editPlanoId").value = plano.id;
-  document.getElementById("editNome").value = plano.nome || "";
-  document.getElementById("editObjetivo").value = plano.objetivo || "";
-  document.getElementById("editDataInicio").value = plano.data_inicio ? plano.data_inicio.slice(0, 10) : "";
-  document.getElementById("editDataFim").value = plano.data_fim ? plano.data_fim.slice(0, 10) : "";
+                const resData = await resp.json();
 
-  setMsgEditar("", "");
-  modal.classList.remove("hidden");
-}
-
-function fecharModal() {
-  modal.classList.add("hidden");
-}
-
-btnFecharModal.addEventListener("click", fecharModal);
-modal.addEventListener("click", (e) => {
-  if (e.target === modal) fecharModal(); // clicar fora fecha
-});
-
-formEditar.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  setMsgEditar("", "");
-
-  const planoId = document.getElementById("editPlanoId").value;
-  const nome = document.getElementById("editNome").value.trim();
-  const objetivo = document.getElementById("editObjetivo").value.trim();
-  const data_inicio = document.getElementById("editDataInicio").value;
-  const data_fim = document.getElementById("editDataFim").value;
-
-  if (!nome) {
-    setMsgEditar("O nome é obrigatório.", "erro");
-    return;
-  }
-
-  try {
-    const resp = await fetch(`/api/planos/${planoId}/${user.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nome, objetivo, data_inicio, data_fim }),
-    });
-
-    const data = await resp.json();
-
-    if (resp.ok) {
-      setMsgEditar(data.mensagem || "Atualizado.", "sucesso");
-      await carregarPlanos();
-      setTimeout(fecharModal, 400);
-    } else {
-      setMsgEditar(data.mensagem || "Erro ao atualizar.", "erro");
-    }
-  } catch (err) {
-    console.error(err);
-    setMsgEditar("Erro ao comunicar com o servidor.", "erro");
-  }
-});
-
-
-  async function carregarPlanos() {
-    try {
-      const resp = await fetch(`/api/planos/${user.id}`);
-      const planos = await resp.json();
-
-      listaPlanosEl.innerHTML = "";
-      if (!Array.isArray(planos) || planos.length === 0) {
-        listaPlanosEl.innerHTML = `<li class="list-empty">Ainda não tens planos.</li>`;
-        return;
-      }
-
-      planos.forEach(p => {
-        const li = document.createElement("li");
-        li.className = "list-item";
-
-        const left = document.createElement("div");
-        left.className = "item-left";
-
-        const h = document.createElement("h3");
-        h.textContent = p.nome;
-
-        const small = document.createElement("p");
-        small.className = "muted";
-        small.textContent = p.objetivo ? `Objetivo: ${p.objetivo}` : "Sem objetivo definido";
-
-        left.appendChild(h);
-        left.appendChild(small);
-
-        const actions = document.createElement("div");
-        actions.className = "item-actions";
-
-        const btnAbrir = document.createElement("a");
-        btnAbrir.className = "secondary-button";
-        btnAbrir.textContent = "Abrir";
-        btnAbrir.href = `/plano_detalhe.html?planoId=${p.id}`;
-
-
-        const btnEditar = document.createElement("button");
-        btnEditar.className = "secondary-button";
-        btnEditar.textContent = "Editar";
-        btnEditar.onclick = () => abrirModalEditar(p);
-
-        
-
-        const btnDesativar = document.createElement("button");
-        btnDesativar.className = "danger-button";
-        btnDesativar.textContent = "Desativar";
-        btnDesativar.onclick = async () => {
-          if (!confirm(`Desativar o plano "${p.nome}"?`)) return;
-          const r = await fetch(`/api/planos/${p.id}/${user.id}`, { method: "DELETE" });
-          const data = await r.json();
-          if (r.ok) {
-            setMensagem(data.mensagem, "sucesso");
-            carregarPlanos();
-          } else {
-            setMensagem(data.mensagem || "Erro ao desativar.", "erro");
-          }
+                if (resp.ok) {
+                    setMensagem("Plano criado com sucesso!", "sucesso");
+                    formPlano.reset();
+                    carregarPlanos(); 
+                } else {
+                    setMensagem(resData.mensagem || "Erro ao criar plano.", "erro");
+                }
+            } catch (err) {
+                setMensagem("Erro de ligação ao servidor.", "erro");
+            }
         };
 
-        actions.appendChild(btnAbrir);
-        actions.appendChild(btnEditar);
-        actions.appendChild(btnDesativar);
+        function abrirModalEditar(plano) {
+            document.getElementById("editPlanoId").value = plano.id;
+            document.getElementById("editNome").value = plano.nome || "";
+            document.getElementById("editObjetivo").value = plano.objetivo || "";
+            document.getElementById("editDataInicio").value = plano.data_inicio ? plano.data_inicio.slice(0, 10) : "";
+            document.getElementById("editDataFim").value = plano.data_fim ? plano.data_fim.slice(0, 10) : "";
+            modal.classList.remove("hidden");
+        }
 
-        li.appendChild(left);
-        li.appendChild(actions);
-        listaPlanosEl.appendChild(li);
-      });
-    } catch (e) {
-      console.error(e);
-      listaPlanosEl.innerHTML = `<li class="list-empty">Erro ao carregar planos.</li>`;
-    }
-  }
+        btnFecharModal.onclick = () => modal.classList.add("hidden");
+        window.onclick = (e) => { if (e.target === modal) modal.classList.add("hidden"); };
 
-  formPlano.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    setMensagem("", "");
+        async function carregarPlanos() {
+            try {
+                const resp = await fetch(`/api/planos/${user.id}`);
+                const planos = await resp.json();
+                listaPlanosEl.innerHTML = "";
 
-    const nome = document.getElementById("nomePlano").value.trim();
-    const objetivo = document.getElementById("objetivoPlano").value.trim();
-    const data_inicio = document.getElementById("dataInicio").value;
-    const data_fim = document.getElementById("dataFim").value;
+                if (!Array.isArray(planos) || planos.length === 0) {
+                    listaPlanosEl.innerHTML = `<li class="list-empty">Ainda não tens planos criados.</li>`;
+                    return;
+                }
 
-    try {
-      const resp = await fetch("/api/planos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          utilizador_id: user.id,
-          nome,
-          objetivo,
-          data_inicio,
-          data_fim
-        })
-      });
+                planos.forEach(p => {
+                    const li = document.createElement("li");
+                    li.className = "list-item";
+                    li.innerHTML = `
+                        <div class="item-left">
+                            <h3>${p.nome}</h3>
+                            <p class="muted">${p.objetivo || "Sem objetivo definido"}</p>
+                        </div>
+                        <div class="item-actions">
+                            <a href="/plano_detalhe.html?planoId=${p.id}" class="secondary-button">Abrir</a>
+                            <button class="secondary-button btn-edit-trigger">Editar</button>
+                            <button class="danger-button btn-del-trigger">Desativar</button>
+                        </div>
+                    `;
+                    li.querySelector(".btn-edit-trigger").onclick = () => abrirModalEditar(p);
+                    li.querySelector(".btn-del-trigger").onclick = async () => {
+                        if (!confirm(`Desativar o plano "${p.nome}"?`)) return;
+                        await fetch(`/api/planos/${p.id}/${user.id}`, { method: "DELETE" });
+                        carregarPlanos();
+                    };
+                    listaPlanosEl.appendChild(li);
+                });
+            } catch (e) {
+                listaPlanosEl.innerHTML = `<li class="list-empty">Erro ao carregar planos.</li>`;
+            }
+        }
 
-      const data = await resp.json();
-      if (resp.ok) {
-        setMensagem(data.mensagem, "sucesso");
-        formPlano.reset();
+        formEditar.onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById("editPlanoId").value;
+            const dados = {
+                nome: document.getElementById("editNome").value.trim(),
+                objetivo: document.getElementById("editObjetivo").value.trim(),
+                data_inicio: document.getElementById("editDataInicio").value,
+                data_fim: document.getElementById("editDataFim").value
+            };
+            const resp = await fetch(`/api/planos/${id}/${user.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dados)
+            });
+            if (resp.ok) {
+                modal.classList.add("hidden");
+                carregarPlanos();
+            }
+        };
+
+        document.getElementById('logoutButton').onclick = () => {
+            localStorage.removeItem("user");
+            window.location.href = "/login.html";
+        };
+
         carregarPlanos();
-      } else {
-        setMensagem(data.mensagem || "Erro ao criar plano.", "erro");
-      }
-    } catch (err) {
-      console.error(err);
-      setMensagem("Erro ao comunicar com o servidor.", "erro");
-    }
-  });
-
-  carregarPlanos();
-</script>
+    </script>
 </body>
 </html>
