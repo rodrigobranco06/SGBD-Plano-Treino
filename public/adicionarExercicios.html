@@ -4,45 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Adicionar Exercícios - FitPlan PRO</title>
-    <link rel="stylesheet" href="css/planos.css">
-    
-    <style>
-        .video-preview {
-            margin-top: 10px;
-            display: none;
-            width: 100%;
-        }
-        .video-preview video {
-            width: 100%;
-            max-height: 250px;
-            border-radius: 12px;
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            background: #020617;
-        }
-        input[type="file"] {
-            padding: 10px;
-            background: #020617;
-            border-radius: 10px;
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            color: #9ca3af;
-            width: 100%;
-            cursor: pointer;
-        }
-        input[type="file"]::file-selector-button {
-            background: #1f2933;
-            color: #38bdf8;
-            border: 1px solid #38bdf8;
-            padding: 5px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-right: 15px;
-            transition: 0.2s;
-        }
-        input[type="file"]::file-selector-button:hover {
-            background: #38bdf8;
-            color: #020617;
-        }
-    </style>
+    <link rel="stylesheet" href="css/adicionarExercicios.css">
 </head>
 
 <body>
@@ -51,11 +13,18 @@
             <h2>🏋️ FitPlan PRO</h2>
             <nav>
                 <a href="dashboard.html" class="nav-link">Dashboard</a>
-                <a href="planos.html" class="nav-link">Meus Planos</a>
+                <a href="planos.html" class="nav-link">Planos</a>
                 <a href="historico.html" class="nav-link">Histórico</a>
                 <a href="exercicios.html" class="nav-link active">Exercícios</a>
+
+                <div class="admin-menu">
+                    <p>Administração</p>
+                    <a href="grupos.html" class="nav-link">Gerir Grupos</a>
+                    <a href="adicionarExercicios.html" class="nav-link active">Gerir Exercícios</a>
+                </div>
             </nav>
             <div class="logout-section">
+                <a href="perfil.html" class="nav-link" style="margin-bottom: 10px;">Perfil</a>
                 <button class="btn-logout" id="logoutButton">Sair</button>
             </div>
         </aside>
@@ -66,7 +35,6 @@
                 <p>Área administrativa para criar e editar exercícios.</p>
                 <div style="margin-top: 15px;">
                     <a href="exercicios.html" class="secondary-button" style="text-decoration: none;">&larr; Voltar à Pesquisa</a>
-                    <a href="grupos.html" class="secondary-button" style="text-decoration: none; margin-left: 10px;">Gerir Grupos Musculares</a>
                 </div>
             </header>
 
@@ -89,8 +57,7 @@
 
                 <div class="form-group">
                     <label for="descricaoExercicio">Descrição (Opcional)</label>
-                    <textarea id="descricaoExercicio" rows="3" placeholder="Dicas de execução..." 
-                        style="width: 100%; padding: 1rem; border-radius: 12px; background: #020617; border: 1px solid #1f2933; color: white; resize: vertical;"></textarea>
+                    <textarea id="descricaoExercicio" rows="3" placeholder="Dicas de execução..."></textarea>
                 </div>
 
                 <div class="form-group">
@@ -139,7 +106,7 @@
 
                 <div class="form-group">
                     <label for="editDescricao">Descrição</label>
-                    <textarea id="editDescricao" rows="3" style="width: 100%; padding: 0.8rem; border-radius: 10px; background: #020617; border: 1px solid #334155; color: white;"></textarea>
+                    <textarea id="editDescricao" rows="3"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -169,7 +136,6 @@
         if (!user) {
             window.location.href = "/login.html";
         } else if (user.role !== "admin") {
-            // Removido o alert, redireciona diretamente
             window.location.href = "/dashboard.html";
         }
 

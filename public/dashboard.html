@@ -13,9 +13,9 @@
 
         <aside class="sidebar">
             <h2>🏋️ FitPlan PRO</h2>
-            <nav>
+            <nav id="navMenu">
                 <a href="dashboard.html" class="nav-link active">Dashboard</a>
-                <a href="planos.html" class="nav-link">Meus Planos</a>
+                <a href="planos.html" class="nav-link">Planos</a>
                 <a href="historico.html" class="nav-link">Histórico</a>
                 <a href="exercicios.html" class="nav-link">Exercícios</a>
             </nav>
@@ -59,7 +59,7 @@
             <p style="color: #9ca3af; margin-bottom: 1.5rem;">Qual o plano que vais treinar hoje?</p>
 
             <div id="listaPlanosOptions">
-                </div>
+            </div>
 
             <button id="btnFecharModal" style="margin-top: 2rem; background: transparent; border: none; color: #9ca3af; cursor: pointer; text-decoration: underline;">
                 Fechar
@@ -68,16 +68,38 @@
     </div>
 
     <script>
-        // Verificação de Segurança
+        // 1. Verificação de Segurança
         const user = JSON.parse(localStorage.getItem("user"));
         if (!user) {
             window.location.href = "/login.html";
         }
 
-        // Personalização
+        // 2. Personalização
         document.getElementById("welcomeMessage").textContent = `Olá, ${user.nome}!`;
 
-        // Carregar Estatísticas da API
+        // ==================================================
+        // 3. LÓGICA DE ADMINISTRADOR (NOVO CÓDIGO)
+        // ==================================================
+        if (user.role === 'admin') {
+            const navMenu = document.getElementById("navMenu");
+            
+            // Cria um bloco HTML com os links de admin e um pequeno separador
+            const adminLinks = `
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(148, 163, 184, 0.1);">
+                    <p style="padding-left: 1.2rem; margin-bottom: 8px; font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase;">
+                        Administração
+                    </p>
+                    <a href="grupos.html" class="nav-link">Gerir Grupos</a>
+                    <a href="adicionarExercicios.html" class="nav-link">Gerir Exercícios</a>
+                </div>
+            `;
+            
+            // Insere o HTML no final da navegação
+            navMenu.insertAdjacentHTML('beforeend', adminLinks);
+        }
+        // ==================================================
+
+        // 4. Carregar Estatísticas da API
         async function carregarEstatisticas() {
             try {
                 const resp = await fetch(`/api/stats/${user.id}`);
@@ -91,7 +113,7 @@
             }
         }
 
-        // Lógica do Modal de Treino
+        // 5. Lógica do Modal de Treino
         const modal = document.getElementById("modalPlano");
         const btnShowPlans = document.getElementById("btnShowPlans");
         const listaPlanosOptions = document.getElementById("listaPlanosOptions");

@@ -1,170 +1,172 @@
-<!-- public/grupos.html -->
 <!DOCTYPE html>
 <html lang="pt">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Grupos Musculares</title>
+    <title>Grupos Musculares - FitPlan PRO</title>
     <link rel="stylesheet" href="css/grupos.css" />
-  </head>
-  <body>
-    <div class="page-wrapper">
-      <div class="panel-container">
-        <div class="panel-header">
-          <h1>Grupos Musculares</h1>
-          <p>Cria e gere os grupos musculares usados nos teus exercícios.</p>
-        </div>
+</head>
+<body>
 
-        <div class="panel-topbar">
-          <span id="infoUser"></span>
-          <a href="/dashboard.html" class="link-ghost">&larr; Voltar ao dashboard</a>
-        </div>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h2>🏋️ FitPlan PRO</h2>
+            <nav>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="planos.html" class="nav-link">Planos</a>
+                <a href="historico.html" class="nav-link">Histórico</a>
+                <a href="exercicios.html" class="nav-link">Exercícios</a>
+                
+                <div class="admin-menu">
+                    <p>Administração</p>
+                    <a href="grupos.html" class="nav-link active">Gerir Grupos</a>
+                    <a href="adicionarExercicios.html" class="nav-link">Gerir Exercícios</a>
+                </div>
+            </nav>
 
-        <form id="formGrupo" class="form-box">
-          <div class="form-group">
-            <label for="nomeGrupo">Nome do grupo</label>
-            <input
-              type="text"
-              id="nomeGrupo"
-              placeholder="Ex.: Peito, Costas, Pernas..."
-              required
-            />
-          </div>
+            <div class="logout-section">
+                <a href="perfil.html" class="nav-link" style="margin-bottom: 10px;">Perfil</a>
+                <button class="btn-logout" id="logoutButton">Sair</button>
+            </div>
+        </aside>
 
-          <button type="submit" class="primary-button">Guardar grupo</button>
-          <p id="mensagem" class="mensagem"></p>
-        </form>
+        <main class="main-content">
+            <div class="panel-container">
+                <div class="panel-header">
+                    <h1>Grupos Musculares</h1>
+                    <p>Cria e gere os grupos musculares usados nos teus exercícios.</p>
+                </div>
 
-        <div class="list-section">
-          <h2>Grupos existentes</h2>
-          <ul id="listaGrupos" class="group-list">
-            <li class="group-list-empty">A carregar grupos...</li>
-          </ul>
-        </div>
-      </div>
+                <div class="panel-topbar">
+                    <span id="infoUser"></span>
+                </div>
+
+                <form id="formGrupo" class="form-box">
+                    <div class="form-group">
+                        <label for="nomeGrupo">Nome do grupo</label>
+                        <input type="text" id="nomeGrupo" placeholder="Ex.: Peito, Costas, Pernas..." required />
+                    </div>
+
+                    <button type="submit" class="primary-button">Guardar grupo</button>
+                    <p id="mensagem" class="mensagem"></p>
+                </form>
+
+                <div class="list-section">
+                    <h2>Grupos existentes</h2>
+                    <ul id="listaGrupos" class="group-list">
+                        <li class="group-list-empty">A carregar grupos...</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
-      // Verificar login
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (!user) {
-        window.location.href = "/login.html";
-      }
+        // Verificar login
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) window.location.href = "/login.html";
+        
+        // Proteção Admin
+        if (user.role !== 'admin') {
+            alert("Acesso negado.");
+            window.location.href = "/dashboard.html";
+        }
 
-      const infoUserEl = document.getElementById("infoUser");
-      const formGrupo = document.getElementById("formGrupo");
-      const inputNome = document.getElementById("nomeGrupo");
-      const mensagemEl = document.getElementById("mensagem");
-      const listaGruposEl = document.getElementById("listaGrupos");
+        const infoUserEl = document.getElementById("infoUser");
+        const formGrupo = document.getElementById("formGrupo");
+        const inputNome = document.getElementById("nomeGrupo");
+        const mensagemEl = document.getElementById("mensagem");
+        const listaGruposEl = document.getElementById("listaGrupos");
 
-      infoUserEl.textContent = `Autenticado como: ${user.nome} (${user.role})`;
+        infoUserEl.textContent = `Admin: ${user.nome}`;
 
-      function setMensagem(texto, tipo) {
-        mensagemEl.textContent = texto || "";
-        mensagemEl.className = "mensagem";
-        if (tipo === "erro") mensagemEl.classList.add("mensagem-erro");
-        if (tipo === "sucesso") mensagemEl.classList.add("mensagem-sucesso");
-      }
+        function setMensagem(texto, tipo) {
+            mensagemEl.textContent = texto || "";
+            mensagemEl.className = "mensagem";
+            if (tipo === "erro") mensagemEl.classList.add("mensagem-erro");
+            if (tipo === "sucesso") mensagemEl.classList.add("mensagem-sucesso");
+        }
 
-      async function carregarGrupos() {
-        try {
-          const resposta = await fetch("/api/grupos-musculares");
-          const grupos = await resposta.json();
+        async function carregarGrupos() {
+            try {
+                const resposta = await fetch("/api/grupos-musculares");
+                const grupos = await resposta.json();
 
-          listaGruposEl.innerHTML = "";
+                listaGruposEl.innerHTML = "";
 
-          if (!Array.isArray(grupos) || grupos.length === 0) {
-            listaGruposEl.innerHTML =
-              '<li class="group-list-empty">Ainda não existem grupos musculares.</li>';
-            return;
-          }
-
-          grupos.forEach((g) => {
-            const li = document.createElement("li");
-            li.className = "group-item";
-
-            const nomeSpan = document.createElement("span");
-            nomeSpan.className = "group-name";
-            nomeSpan.textContent = g.nome;
-
-            const btnApagar = document.createElement("button");
-            btnApagar.className = "danger-button";
-            btnApagar.textContent = "Apagar";
-            btnApagar.addEventListener("click", async () => {
-              const confirma = confirm(
-                `Tens a certeza que queres apagar o grupo "${g.nome}"?`
-              );
-              if (!confirma) return;
-
-              try {
-                const resp = await fetch(
-                  `/api/grupos-musculares/${g.id}`,
-                  { method: "DELETE" }
-                );
-                const data = await resp.json();
-
-                if (resp.ok) {
-                  setMensagem(data.mensagem || "Grupo apagado.", "sucesso");
-                  carregarGrupos();
-                } else {
-                  setMensagem(
-                    data.mensagem || "Não foi possível apagar o grupo.",
-                    "erro"
-                  );
+                if (!Array.isArray(grupos) || grupos.length === 0) {
+                    listaGruposEl.innerHTML = '<li class="group-list-empty">Ainda não existem grupos musculares.</li>';
+                    return;
                 }
-              } catch (err) {
-                console.error(err);
-                setMensagem("Erro ao comunicar com o servidor.", "erro");
-              }
-            });
 
-            li.appendChild(nomeSpan);
-            li.appendChild(btnApagar);
-            listaGruposEl.appendChild(li);
-          });
-        } catch (err) {
-          console.error(err);
-          listaGruposEl.innerHTML =
-            '<li class="group-list-empty">Erro ao carregar grupos.</li>';
+                grupos.forEach((g) => {
+                    const li = document.createElement("li");
+                    li.className = "group-item";
+                    
+                    const nomeSpan = document.createElement("span");
+                    nomeSpan.className = "group-name";
+                    nomeSpan.textContent = g.nome;
+
+                    const btnApagar = document.createElement("button");
+                    btnApagar.className = "danger-button";
+                    btnApagar.textContent = "Apagar";
+                    btnApagar.addEventListener("click", async () => {
+                        if (!confirm(`Apagar o grupo "${g.nome}"?`)) return;
+                        try {
+                            const resp = await fetch(`/api/grupos-musculares/${g.id}`, { method: "DELETE" });
+                            const data = await resp.json();
+                            if (resp.ok) {
+                                setMensagem("Grupo apagado.", "sucesso");
+                                carregarGrupos();
+                            } else {
+                                setMensagem(data.mensagem || "Erro ao apagar.", "erro");
+                            }
+                        } catch (err) {
+                            setMensagem("Erro de comunicação.", "erro");
+                        }
+                    });
+
+                    li.appendChild(nomeSpan);
+                    li.appendChild(btnApagar);
+                    listaGruposEl.appendChild(li);
+                });
+            } catch (err) {
+                listaGruposEl.innerHTML = '<li class="group-list-empty">Erro ao carregar grupos.</li>';
+            }
         }
-      }
 
-      formGrupo.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        setMensagem("", "");
+        formGrupo.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            setMensagem("", "");
+            const nome = inputNome.value.trim();
+            if (!nome) return setMensagem("Escreve um nome.", "erro");
 
-        const nome = inputNome.value.trim();
-        if (!nome) {
-          setMensagem("Escreve um nome para o grupo.", "erro");
-          return;
-        }
+            try {
+                const resposta = await fetch("/api/grupos-musculares", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ nome }),
+                });
+                const data = await resposta.json();
 
-        try {
-          const resposta = await fetch("/api/grupos-musculares", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ nome }),
-          });
+                if (resposta.ok) {
+                    setMensagem("Grupo criado!", "sucesso");
+                    inputNome.value = "";
+                    carregarGrupos();
+                } else {
+                    setMensagem(data.mensagem || "Erro ao criar.", "erro");
+                }
+            } catch (err) {
+                setMensagem("Erro de comunicação.", "erro");
+            }
+        });
 
-          const data = await resposta.json();
+        document.getElementById('logoutButton').onclick = () => {
+            localStorage.removeItem("user");
+            window.location.href = "/login.html";
+        };
 
-          if (resposta.ok) {
-            setMensagem(data.mensagem || "Grupo criado com sucesso.", "sucesso");
-            inputNome.value = "";
-            carregarGrupos();
-          } else {
-            setMensagem(data.mensagem || "Erro ao criar grupo.", "erro");
-          }
-        } catch (err) {
-          console.error(err);
-          setMensagem("Erro ao comunicar com o servidor.", "erro");
-        }
-      });
-
-      // Carregar ao entrar na página
-      carregarGrupos();
+        carregarGrupos();
     </script>
-  </body>
+</body>
 </html>
