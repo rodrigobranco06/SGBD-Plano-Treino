@@ -11,7 +11,7 @@
     <div class="dashboard-layout">
         <aside class="sidebar">
             <h2>🏋️ FitPlan PRO</h2>
-            <nav>
+            <nav id="navMenu">
                 <a href="dashboard.html" class="nav-link">Dashboard</a>
                 <a href="planos.html" class="nav-link">Planos</a>
                 <a href="historico.html" class="nav-link">Histórico</a>
@@ -92,6 +92,22 @@
         const user = JSON.parse(localStorage.getItem("user"));
         if (!user) window.location.href = "/login.html";
 
+        // ==================================================
+        // INJEÇÃO DA SIDEBAR DE ADMIN
+        // ==================================================
+        if (user.role === 'admin') {
+            const navMenu = document.getElementById("navMenu");
+            const adminLinks = `
+                <div class="admin-menu">
+                    <p>Administração</p>
+                    <a href="grupos.html" class="nav-link">Gerir Grupos</a>
+                    <a href="adicionarExercicios.html" class="nav-link">Gerir Exercícios</a>
+                </div>
+            `;
+            navMenu.insertAdjacentHTML('beforeend', adminLinks);
+        }
+        // ==================================================
+
         // 2. Elementos do DOM
         const formPerfil = document.getElementById("formPerfil");
         const mensagemEl = document.getElementById("mensagem");
@@ -145,7 +161,6 @@
         // 5. Carregar Dados do Perfil (GET)
         async function carregarPerfil() {
             try {
-                // Preenche dados básicos (fallback)
                 elNome.value = user.nome;
                 elEmail.value = user.email || "A carregar...";
 
@@ -153,7 +168,6 @@
                 if (!resp.ok) throw new Error("Erro na API");
                 const dados = await resp.json();
 
-                // Atualiza com dados reais da BD
                 elNome.value = dados.nome || user.nome;
                 elEmail.value = dados.email || user.email || "Email não disponível"; 
 
@@ -162,10 +176,9 @@
                 if (dados.altura_cm) elAltura.value = dados.altura_cm;
                 if (dados.peso_inicial_kg) elPeso.value = dados.peso_inicial_kg;
 
-                calcularIMC(); // Atualiza o widget
+                calcularIMC(); 
             } catch (err) {
                 console.log("Perfil ainda não criado ou erro ao carregar.", err);
-                // Mantém os dados do localStorage se a API falhar
                 if(!elEmail.value || elEmail.value === "A carregar...") {
                      elEmail.value = user.email || "Indisponível";
                 }

@@ -5,9 +5,17 @@ class OperadorPerfil {
   // Obter dados do utilizador + perfil
   obterPerfil(utilizador_id) {
     return new Promise((resolve, reject) => {
-      // Usamos LEFT JOIN porque o utilizador pode existir mas ainda não ter perfil criado
+      // AQUI ESTÁ A CORREÇÃO:
+      // Usamos DATE_FORMAT para converter a data em string 'AAAA-MM-DD' diretamente no SQL.
+      // Assim o JavaScript recebe uma string fixa e não aplica fusos horários.
       const sql = `
-        SELECT u.nome, u.email, p.data_nascimento, p.genero, p.altura_cm, p.peso_inicial_kg
+        SELECT 
+            u.nome, 
+            u.email, 
+            DATE_FORMAT(p.data_nascimento, '%Y-%m-%d') as data_nascimento, 
+            p.genero, 
+            p.altura_cm, 
+            p.peso_inicial_kg
         FROM utilizadores u
         LEFT JOIN perfis_atleta p ON u.id = p.utilizador_id
         WHERE u.id = ?

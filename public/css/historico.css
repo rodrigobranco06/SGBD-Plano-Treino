@@ -64,6 +64,22 @@ body {
     border-left: 4px solid #38bdf8;
 }
 
+/* Menu Admin */
+.admin-menu {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.admin-menu p {
+    padding-left: 1.2rem;
+    margin-bottom: 8px;
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
 .logout-section {
     margin-top: auto;
     padding-top: 1.5rem;
@@ -118,7 +134,7 @@ body {
     align-items: center;
     position: relative;
     overflow: hidden;
-    cursor: default; /* O card em si não tem cursor de clique */
+    cursor: default; 
 }
 
 .history-card::before {
@@ -145,7 +161,7 @@ body {
     border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-/* Link de Detalhes - Único local clicável */
+/* Link de Detalhes */
 .ver-detalhes-link {
     display: inline-block;
     margin-top: 12px;
@@ -167,16 +183,4 @@ body {
     color: #38bdf8;
     font-weight: 800;
     font-size: 1.1rem;
-}
-
-.btn-logout {
-    margin-top: auto;
-    width: 100%;
-    padding: 0.9rem;
-    background: #dc2626;
-    color: white;
-    border: none;
-    border-radius: 0.75rem;
-    cursor: pointer;
-    font-weight: bold;
 }

@@ -4,49 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Exercícios - FitPlan PRO</title>
-    <link rel="stylesheet" href="css/planos.css">
-    <style>
-        /* Ajustes específicos para a barra de pesquisa de exercícios */
-        .filters-grid {
-            display: grid;
-            grid-template-columns: 200px 1fr auto;
-            gap: 1rem;
-            align-items: end;
-        }
-        @media (max-width: 800px) { .filters-grid { grid-template-columns: 1fr; } }
-        
-        .badge-muscular {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            font-weight: 800;
-            color: #38bdf8;
-            background: rgba(56, 189, 248, 0.1);
-            padding: 4px 8px;
-            border-radius: 6px;
-            margin-bottom: 5px;
-            display: inline-block;
-        }
-
-        .video-container {
-            margin-top: auto; /* Empurra o vídeo para o fundo do card */
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="css/exercicios.css">
 </head>
 <body>
 
     <div class="dashboard-layout">
         <aside class="sidebar">
             <h2>🏋️ FitPlan PRO</h2>
-            <nav>
+            <nav id="navMenu">
                 <a href="dashboard.html" class="nav-link">Dashboard</a>
                 <a href="planos.html" class="nav-link">Planos</a>
                 <a href="historico.html" class="nav-link">Histórico</a>
                 <a href="exercicios.html" class="nav-link active">Exercícios</a>
             </nav>
             <div class="logout-section">
-              <a href="perfil.html" class="nav-link" style="margin-bottom: 10px;">Perfil</a>
-              <button class="btn-logout" id="logoutButton">Sair</button>
+                <a href="perfil.html" class="nav-link" style="margin-bottom: 10px;">Perfil</a>
+                <button class="btn-logout" id="logoutButton">Sair</button>
             </div>
         </aside>
 
@@ -55,7 +28,7 @@
                 <h1>Galeria de Exercícios</h1>
                 <p>Explora a biblioteca de movimentos ou adiciona novos.</p>
                 <div style="margin-top: 1rem;">
-                    <a id="linkAdicionar" href="adicionarExercicios.html" class="primary-button" style="display: inline-block; width: auto; text-decoration: none; font-size: 0.9rem; padding: 0.6rem 1.2rem;">
+                    <a id="linkAdicionar" href="adicionarExercicios.html" class="primary-button" style="display: none; width: auto; font-size: 0.9rem; padding: 0.6rem 1.2rem;">
                         + Adicionar Novo
                     </a>
                 </div>
@@ -94,12 +67,27 @@
         const user = JSON.parse(localStorage.getItem("user"));
         if (!user) window.location.href = "/login.html";
 
-        // Controlo de acesso ao botão de adicionar
+        // ==================================================
+        // LÓGICA DE ADMIN (SIDEBAR + BOTÃO ADICIONAR)
+        // ==================================================
         const linkAdicionar = document.getElementById("linkAdicionar");
-        if (user.role !== "admin") {
-            // Se quiseres que apenas admins adicionem:
-            linkAdicionar.style.display = "none";
+        
+        if (user.role === "admin") {
+            // Mostrar botão de adicionar
+            linkAdicionar.style.display = "inline-block";
+
+            // Injetar menu na sidebar
+            const navMenu = document.getElementById("navMenu");
+            const adminLinks = `
+                <div class="admin-menu">
+                    <p>Administração</p>
+                    <a href="grupos.html" class="nav-link">Gerir Grupos</a>
+                    <a href="adicionarExercicios.html" class="nav-link">Gerir Exercícios</a>
+                </div>
+            `;
+            navMenu.insertAdjacentHTML('beforeend', adminLinks);
         }
+        // ==================================================
 
         const filtroGrupo = document.getElementById("filtroGrupo");
         const filtroNome = document.getElementById("filtroNome");
@@ -107,7 +95,6 @@
         const listaEl = document.getElementById("listaExercicios");
         const contadorEl = document.getElementById("contador");
 
-        // Carregar grupos musculares para o select
         async function carregarGrupos() {
             try {
                 const resp = await fetch("/api/grupos-musculares");
@@ -137,9 +124,8 @@
 
             exercicios.forEach(e => {
                 const li = document.createElement("li");
-                li.className = "list-item"; // Usa o estilo de card do planos.css
+                li.className = "list-item"; 
                 
-                // Estrutura do Card
                 li.innerHTML = `
                     <div class="item-left" style="width: 100%;">
                         <span class="badge-muscular">${e.grupo_nome}</span>
@@ -148,7 +134,7 @@
                         
                         ${e.video_caminho ? `
                             <div class="video-container">
-                                <video class="exercise-video" controls preload="metadata" style="width: 100%; height: 180px;">
+                                <video class="exercise-video" controls preload="metadata">
                                     <source src="${e.video_caminho}" type="video/mp4">
                                     O teu browser não suporta vídeo.
                                 </video>
@@ -178,7 +164,6 @@
 
         btnPesquisar.onclick = pesquisar;
         
-        // Pesquisa automática ao escrever (debounce)
         let timer = null;
         filtroNome.oninput = () => {
             clearTimeout(timer);
@@ -191,7 +176,6 @@
             window.location.href = "/login.html";
         };
 
-        // Inicialização
         (async function init() {
             await carregarGrupos();
             await pesquisar();

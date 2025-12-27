@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Histórico de Treinos - FitPlan PRO</title>
-    
     <link rel="stylesheet" href="css/historico.css">
-
 </head>
 <body>
 
@@ -15,7 +12,7 @@
 
         <aside class="sidebar">
             <h2>🏋️ FitPlan PRO</h2>
-            <nav>
+            <nav id="navMenu">
                 <a href="dashboard.html" class="nav-link">Dashboard</a>
                 <a href="planos.html" class="nav-link">Planos</a>
                 <a href="historico.html" class="nav-link active">Histórico</a>
@@ -28,7 +25,6 @@
         </aside>
 
         <main class="main-content">
-
             <header class="welcome-header">
                 <h1>O Teu Percurso</h1>
                 <p>Consulta as tuas sessões passadas e monitoriza a tua evolução.</p>
@@ -36,18 +32,32 @@
 
             <section id="listaHistorico" class="history-list">
                 </section>
-
         </main>
 
     </div>
 
     <script>
-
         const user = JSON.parse(localStorage.getItem("user"));
         
         if (!user) {
             window.location.href = "/login.html";
         }
+
+        // ==================================================
+        // INJEÇÃO DA SIDEBAR DE ADMIN
+        // ==================================================
+        if (user.role === 'admin') {
+            const navMenu = document.getElementById("navMenu");
+            const adminLinks = `
+                <div class="admin-menu">
+                    <p>Administração</p>
+                    <a href="grupos.html" class="nav-link">Gerir Grupos</a>
+                    <a href="adicionarExercicios.html" class="nav-link">Gerir Exercícios</a>
+                </div>
+            `;
+            navMenu.insertAdjacentHTML('beforeend', adminLinks);
+        }
+        // ==================================================
 
         async function carregarHistorico() {
             
@@ -55,7 +65,6 @@
             container.innerHTML = "<p>A carregar registos...</p>";
 
             try {
-                // Rota que utiliza o método listarHistorico do operador
                 const resp = await fetch(`/api/historico/${user.id}`);
                 const treinos = await resp.json();
 
@@ -67,7 +76,6 @@
                 container.innerHTML = "";
 
                 treinos.forEach(treino => {
-                    
                     const data = new Date(treino.data_treino).toLocaleDateString('pt-PT');
                     const card = document.createElement("div");
                     card.className = "history-card";

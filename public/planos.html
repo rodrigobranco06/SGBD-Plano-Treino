@@ -11,7 +11,7 @@
     <div class="dashboard-layout">
         <aside class="sidebar">
             <h2>🏋️ FitPlan PRO</h2>
-            <nav>
+            <nav id="navMenu">
                 <a href="dashboard.html" class="nav-link">Dashboard</a>
                 <a href="planos.html" class="nav-link active">Planos</a>
                 <a href="historico.html" class="nav-link">Histórico</a>
@@ -99,6 +99,24 @@
 
         const roleTratado = user.role === "admin" ? "Admin" : "Atleta";
         document.getElementById("infoUser").textContent = `Autenticado como: ${user.nome} — ${roleTratado}`;
+
+        // ==================================================
+        // INJEÇÃO DA SIDEBAR DE ADMIN
+        // ==================================================
+        if (user.role === 'admin') {
+            const navMenu = document.getElementById("navMenu");
+            const adminLinks = `
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(148, 163, 184, 0.1);">
+                    <p style="padding-left: 1.2rem; margin-bottom: 8px; font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase;">
+                        Administração
+                    </p>
+                    <a href="grupos.html" class="nav-link">Gerir Grupos</a>
+                    <a href="adicionarExercicios.html" class="nav-link">Gerir Exercícios</a>
+                </div>
+            `;
+            navMenu.insertAdjacentHTML('beforeend', adminLinks);
+        }
+        // ==================================================
 
         const formPlano = document.getElementById("formPlano");
         const mensagemEl = document.getElementById("mensagem");
