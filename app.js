@@ -640,3 +640,9 @@ APP.put("/api/perfil/:id", async (req, res) => {
     res.status(500).json({ mensagem: "Erro ao guardar perfil" });
   }
 });
+
+// PÁGINA 404.HTML
+APP.use((req, res) => {
+    // Define o status como 404 e envia o ficheiro HTML
+    res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
+});
